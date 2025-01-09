@@ -1,0 +1,4 @@
+openai
+prettytable
+pydantic
+vllm
