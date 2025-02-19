@@ -2,6 +2,7 @@ from openai import OpenAI
 import openai
 import copy
 import uuid
+import os
 
 class MessageHistory:
     def __init__(self, parent : 'MessageHistory' = None):
@@ -123,12 +124,9 @@ class ChatPIE:
         return (self.response_tokens_used, self.prompt_tokens_used)
 
 
-        
-
-
 class ChatAPI:
-    def __init__(self):
-        self.client = OpenAI()#api_key="0", base_url="http://queue-g6e2xlarge-dy-g6e2xlarge-1:8000/v1")
+    def __init__(self, api_key='0', base_url='https://api.deepseek.com'):
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
         self.prompt_tokens_used = dict()
         self.response_tokens_used = dict()
         self.cached_prompt_tokens = dict()
@@ -163,12 +161,17 @@ class ChatAPI:
         #    log.write(f"{completion.choices[0].message.content}\n")
         #    log.write(str(self.get_cost())+"\n")
         self.counter += 1
-
-
-        self.response_tokens_used[model] += completion.usage.completion_tokens
-        self.prompt_tokens_used[model] += completion.usage.prompt_tokens
-        #print(completion.usage.prompt_tokens_details)
-        self.cached_prompt_tokens[model] += completion.usage.prompt_tokens_details.cached_tokens
+        
+        if model == 'deepseek-chat' or model == "deepseek-reasoner":
+            self.response_tokens_used[model] += completion.usage.completion_tokens
+            self.prompt_tokens_used[model] += completion.usage.prompt_tokens
+            self.cached_prompt_tokens[model] += completion.usage.prompt_cache_hit_tokens
+        else:
+            self.response_tokens_used[model] += completion.usage.completion_tokens
+            self.prompt_tokens_used[model] += completion.usage.prompt_tokens
+            self.cached_prompt_tokens[model] += completion.usage.prompt_tokens_details.cached_tokens
+        # print(completion.usage.prompt_tokens_details)
+        # print(completion.usage)
         return completion.choices[0].message.content
 
     def get_usage(self):
@@ -177,20 +180,42 @@ class ChatAPI:
     def get_cost(self):
         prompt_costs = dict()
         response_costs = dict()
+        prompt_cache_hit_costs = dict()
+      
+        
+        prompt_cache_hit_costs['gpt-4o'] = 0.0025
         prompt_costs['gpt-4o'] = 0.005
         response_costs['gpt-4o'] = 0.015
-        prompt_costs["gpt-3.5-turbo"] = 0.0005
-        response_costs["gpt-3.5-turbo"] = 0.0015
-        prompt_costs['gpt-4o-mini'] = 0.000150
-        response_costs['gpt-4o-mini'] = 0.000600
-        prompt_costs['gpt-4o-2024-08-06'] = 0.00250
-        response_costs['gpt-4o-2024-08-06'] = 0.01000
+        
+        
+        prompt_cache_hit_costs['gpt-4o'] = 0.00025
+        prompt_costs['gpt-4o'] = 0.0005
+        response_costs['gpt-4o'] = 0.0015
+        
+               
+        prompt_cache_hit_costs['gpt-4o'] = 0.000075
+        prompt_costs['gpt-4o'] = 0.000150
+        response_costs['gpt-4o'] = 0.015
 
+        
+        prompt_cache_hit_costs['gpt-4o'] = 0.0025
+        prompt_costs['gpt-4o'] = 0.005
+        response_costs['gpt-4o'] = 0.010
+
+        
+        prompt_cache_hit_costs['deepseek-chat'] = 0.0002
+        prompt_costs['deepseek-chat'] = 0.00027
+        response_costs['deepseek-chat'] = 0.0011
+
+        prompt_cache_hit_costs['deepseek-reasoner'] = 0.00041
+        prompt_costs['deepseek-reasoner'] = 0.00055
+        response_costs['deepseek-reasoner'] = 0.00219
+        
         total_prompt = 0
         total_response = 0
         for x in self.prompt_tokens_used.keys():
             if x not in prompt_costs:
-                print(f"Warning {x} not in prompt_costs")
+                print(f"Warning {x} not in prompt_cache_miss_costs")
             else:
                 total_prompt += (self.prompt_tokens_used[x] * prompt_costs[x]) / 1000
 
@@ -201,19 +226,20 @@ class ChatAPI:
                 total_response += (self.response_tokens_used[x] * response_costs[x]) / 1000
         discount = 0
         for x in self.cached_prompt_tokens:
-              discount += (self.cached_prompt_tokens[x]*prompt_costs[x])/(2*1000)
+            discount += (self.cached_prompt_tokens[x] * prompt_cache_hit_costs[x]) / 1000
 
         return (total_response, total_prompt, total_prompt+total_response, total_prompt + total_response - discount)
         return (self.response_tokens_used, self.prompt_tokens_used)
 
-
-        
-        
-
-
-      
-
+def get_api_key() -> str:
+    """
     
+    Retrieves the OpenAI API key from the environment variable.
     
-    
-    
+    """
+    api_key = os.getenv("OPENAI_API_KEY", "EMPTY")
+    if not api_key:
+        print("Error: The OPENAI_API_KEY environment variable is not set.")
+        print("Please set it and try again.")
+        sys.exit(1)
+    return api_key
