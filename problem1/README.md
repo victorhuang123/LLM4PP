@@ -9,7 +9,7 @@ git lfs pull
 
 Export your openai api
 ```
-expoort OPENAI_API_KEY = <your-api-key>
+export OPENAI_API_KEY = <your-api-key>
 ```
 
 generate codes

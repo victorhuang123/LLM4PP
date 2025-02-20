@@ -7,7 +7,7 @@ import glob
 import argparse
 
 def evaluate(json_file, eval_times, output_dir):
-
+    print(json_file, eval_times, output_dir)
     with open(json_file, "r") as f:
         results = json.load(f)
 
@@ -37,6 +37,8 @@ def evaluate(json_file, eval_times, output_dir):
         driver.save_all_responses(output_dir + output_name)
         driver.evaluate()
 
+def evaluate_wrapper(args):
+    return evaluate(*args)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate codes with ParEvalDriver.")
@@ -72,10 +74,10 @@ def main():
     
     # change the path 
     json_files = glob.glob(os.path.join(codes_dir, '*.json'))
-
+    tasks = [(json_file, eval_times, output_dir) for json_file in json_files]
     print(json_files)
     with multiprocessing.Pool(processes=processes) as pool:
-        pool.map(evaluate, json_files, eval_times, output_dir)
+        pool.map(evaluate_wrapper, tasks)
 
 if __name__ == "__main__":
     main()
