@@ -57,14 +57,14 @@ def main():
     parser.add_argument(
         "--processes",
         type=int,
-        default="20",
+        default="10",
         help="The size of the process pool used for testing."
     )
     parser.add_argument(
         "--eval-times",
         type=int,
         default="10",
-        help="Number of tests."
+        help="The number of tests per code."
     )
     args = parser.parse_args()
     codes_dir = args.codes_dir
@@ -76,6 +76,8 @@ def main():
     json_files = glob.glob(os.path.join(codes_dir, '*.json'))
     tasks = [(json_file, eval_times, output_dir) for json_file in json_files]
     print(json_files)
+
+    #TODO:Bind cores
     with multiprocessing.Pool(processes=processes) as pool:
         pool.map(evaluate_wrapper, tasks)
 

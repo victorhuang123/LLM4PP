@@ -687,7 +687,7 @@ def main():
                 
             # create output directory if not exists
             output_dir = args.output_dir
-            output_folder = os.path.join(output_dir, model_path)+'1'
+            output_folder = os.path.join(output_dir, model_path)
             os.makedirs(output_folder, exist_ok=True)
             output_path = os.path.join(output_folder, output_filename)
             print(problem_optimized_code)
