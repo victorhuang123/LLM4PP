@@ -2,3 +2,6 @@ openai
 prettytable
 pydantic
 vllm
+tenacity
+sentence_transformers
+faiss-cpu

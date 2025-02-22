@@ -424,7 +424,9 @@ def main():
                         messages.add_message("user", json.dumps({"solution.cpp": problem.source_code}))
                 
                         optimized_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                        optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+                        match = re.search(r'```cpp\s*(.*?)\s*```', optimized_code, re.DOTALL)
+                        optimized_code = match.group(1).strip() if match else "No code found."
+                        #optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
                         if args.check:
                             # check compile
                             print("do check")
@@ -445,7 +447,9 @@ def main():
                                     
                                     # Get the corrected code from LLM
                                     corrected_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                                    optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+                                    match = re.search(r'```cpp\s*(.*?)\s*```', corrected_code, re.DOTALL)
+                                    optimized_code = match.group(1).strip() if match else "No code found."
+                                    #optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
                                 else:
                                     break
                     else:
@@ -459,7 +463,9 @@ def main():
                         messages.add_message("system", serial_prompt)
                         messages.add_message("user", json.dumps({"solution.cpp": problem.source_code}))
                         optimized_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                        optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+                        match = re.search(r'```cpp\s*(.*?)\s*```', optimized_code, re.DOTALL)
+                        optimized_code = match.group(1).strip() if match else "No code found."
+                        #optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
                         
                         if args.check:
                             # check compile
@@ -481,7 +487,9 @@ def main():
                                     
                                     # Get the corrected code from LLM
                                     corrected_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                                    optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+                                    match = re.search(r'```cpp\s*(.*?)\s*```', corrected_code, re.DOTALL)
+                                    optimized_code = match.group(1).strip() if match else "No code found."
+                                    #optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
                                 else:
                                     break
                         #TODO: Check whether context is required
@@ -489,7 +497,10 @@ def main():
                         messages.add_message("system", parallel_prompt)
                         messages.add_message("user", optimized_code)
                         optimized_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                        optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+                        match = re.search(r'```cpp\s*(.*?)\s*```', optimized_code, re.DOTALL)
+                        optimized_code = match.group(1).strip() if match else "No code found."
+                        #optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+
                         if args.check:
                             # check compile
                             print("do check")
@@ -510,7 +521,10 @@ def main():
                                     
                                     # Get the corrected code from LLM
                                     corrected_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                                    optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+                                    match = re.search(r'```cpp\s*(.*?)\s*```', corrected_code, re.DOTALL)
+                                    optimized_code = match.group(1).strip() if match else "No code found."
+                                    #optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+
                                 else:
                                     break
                     elif (args.serial_rag) and (not args.parallel_rag):
@@ -530,7 +544,9 @@ def main():
                         messages.add_message("system", optimizer_prompt)
                         messages.add_message("user", json.dumps({"solution.cpp": problem.source_code}))
                         optimized_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                        optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+                        match = re.search(r'```cpp\s*(.*?)\s*```', optimized_code, re.DOTALL)
+                        optimized_code = match.group(1).strip() if match else "No code found."
+                        #optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
                         if args.check:
                             # check compile
                             print("do check")
@@ -551,7 +567,9 @@ def main():
                                     
                                     # Get the corrected code from LLM
                                     corrected_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                                    optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+                                    match = re.search(r'```cpp\s*(.*?)\s*```', corrected_code, re.DOTALL)
+                                    optimized_code = match.group(1).strip() if match else "No code found."
+                                    #optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
                                 else:
                                     break
             
@@ -559,7 +577,9 @@ def main():
                         messages.add_message("system", parallel_prompt)
                         messages.add_message("user", optimized_code)
                         optimized_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                        optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+                        match = re.search(r'```cpp\s*(.*?)\s*```', optimized_code, re.DOTALL)
+                        optimized_code = match.group(1).strip() if match else "No code found."
+                        #optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
                         if args.check:
                             # check compile
                             print("do check")
@@ -580,7 +600,9 @@ def main():
                                     
                                     # Get the corrected code from LLM
                                     corrected_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                                    optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+                                    match = re.search(r'```cpp\s*(.*?)\s*```', corrected_code, re.DOTALL)
+                                    optimized_code = match.group(1).strip() if match else "No code found."
+                                    #optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
                                 else:
                                     break
                     elif (args.serial_rag) and (args.parallel_rag):
@@ -600,7 +622,9 @@ def main():
                         messages.add_message("system", optimizer_prompt)
                         messages.add_message("user", json.dumps({"solution.cpp": problem.source_code}))
                         optimized_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                        optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+                        match = re.search(r'```cpp\s*(.*?)\s*```', optimized_code, re.DOTALL)
+                        optimized_code = match.group(1).strip() if match else "No code found."
+                        #optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
                         if args.check:
                             # check compile
                             print("do check")
@@ -621,7 +645,9 @@ def main():
                                     
                                     # Get the corrected code from LLM
                                     corrected_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                                    optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+                                    match = re.search(r'```cpp\s*(.*?)\s*```', corrected_code, re.DOTALL)
+                                    optimized_code = match.group(1).strip() if match else "No code found."
+                                    #optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
                                 else:
                                     break
                         optimizer_prompt = generate_rag_prompt(
@@ -639,7 +665,9 @@ def main():
                         messages.add_message("system", optimizer_prompt)
                         messages.add_message("user", optimized_code)
                         optimized_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                        optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
+                        match = re.search(r'```cpp\s*(.*?)\s*```', optimized_code, re.DOTALL)
+                        optimized_code = match.group(1).strip() if match else "No code found."
+                        #optimized_code = re.sub(r'```cpp|```', '', optimized_code).strip()
                         if args.check:
                             # check compile
                             print("do check")
@@ -660,7 +688,9 @@ def main():
                                     
                                     # Get the corrected code from LLM
                                     corrected_code = get_response_with_retry(chatAPI, model_path, messages, json_format=False)
-                                    optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
+                                    match = re.search(r'```cpp\s*(.*?)\s*```', corrected_code, re.DOTALL)
+                                    optimized_code = match.group(1).strip() if match else "No code found."
+                                    #optimized_code = re.sub(r'```cpp|```', '', corrected_code).strip()
                                 else:
                                     break
                     else:
