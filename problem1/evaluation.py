@@ -5,9 +5,51 @@ import multiprocessing
 import os
 import glob
 import argparse
+import psutil
+
+def get_bind_core_list():
+    # get the map list from physic core to logic core
+    core_map = {}
+    with open('/proc/cpuinfo') as f:
+        current_phys_id = None
+        for line in f:
+            # start a block
+            if 'processor' in line:
+                logical_id = int(line.split(':')[-1].strip())
+                current_phys_id = None
+            if 'core id' in line:
+                current_phys_id = int(line.split(':')[-1].strip())
+                if current_phys_id not in core_map:
+                    core_map[current_phys_id] = []
+                core_map[current_phys_id].append(logical_id)
+                
+    # get the bind list
+    cores = [v[0] for _, v in sorted(core_map.items())]
+    return [cores[i:i+8] for i in range(0, len(cores) // 8 * 8, 8)]
+
+def init_worker(core_queue):
+    core_list = core_queue.get()
+    p = psutil.Process(os.getpid())
+    p.cpu_affinity(core_list)
+
+def print_cpu_affinity(json_file, eval_times, output_dir):
+    try:
+        # get list of current cpu affinity
+        process = psutil.Process(os.getpid())
+        affinity = process.cpu_affinity()
+        output_name = os.path.basename(json_file).replace(".json","") +'.txt'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        output_name = os.path.join(output_dir, output_name)
+        
+        with open(output_name, 'w') as fw:
+            print(output_name, file=fw)
+            print(affinity, file=fw)
+            print(json_file, file=fw)
+    except Exception as e:
+        print(f"Get current cpu affinity failed: {e}")
 
 def evaluate(json_file, eval_times, output_dir):
-    print(json_file, eval_times, output_dir)
     with open(json_file, "r") as f:
         results = json.load(f)
 
@@ -16,7 +58,6 @@ def evaluate(json_file, eval_times, output_dir):
         for problem in driver:
             problem : LLM4PP_Problem
             problem_id = problem.problem_id
-            #print(f"Processing problem {problem_id} from {jsonl_file}")
 
             optimized_code = results.get(problem_id)
 
@@ -24,8 +65,7 @@ def evaluate(json_file, eval_times, output_dir):
                                         submitted_code=optimized_code)
             try:
                 response = driver.submit(submission)
-                print(response)
-                # response_dict[problem_id] = response
+
             except Exception as e:
                 print(f"skipping problem due to exception: {e}")
                 print("--- ParEval driver stdout ---")
@@ -34,10 +74,12 @@ def evaluate(json_file, eval_times, output_dir):
         output_name = os.path.basename(json_file).replace(".json","") + f'_eval{run}' +'.json'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        driver.save_all_responses(output_dir + output_name)
+        output_name = os.path.join(output_dir, output_name)
+        driver.save_all_responses(output_name)
         driver.evaluate()
 
 def evaluate_wrapper(args):
+    # return print_cpu_affinity(*args)
     return evaluate(*args)
 
 def main():
@@ -55,12 +97,6 @@ def main():
         help="Directory where evaluation results be saved."
     )
     parser.add_argument(
-        "--processes",
-        type=int,
-        default="10",
-        help="The size of the process pool used for testing."
-    )
-    parser.add_argument(
         "--eval-times",
         type=int,
         default="10",
@@ -69,7 +105,6 @@ def main():
     args = parser.parse_args()
     codes_dir = args.codes_dir
     output_dir = args.output_dir
-    processes = args.processes
     eval_times = args.eval_times
     
     # change the path 
@@ -77,9 +112,16 @@ def main():
     tasks = [(json_file, eval_times, output_dir) for json_file in json_files]
     print(json_files)
 
-    #TODO:Bind cores
-    with multiprocessing.Pool(processes=processes) as pool:
-        pool.map(evaluate_wrapper, tasks)
+    bind_core_lists = get_bind_core_list()
+    pool_size = len(bind_core_lists)
+    print(bind_core_lists)
+    with multiprocessing.Manager() as manager:
+        core_queue = manager.Queue()
+        for core_lists in bind_core_lists:
+            core_queue.put(core_lists)
+            
+        with multiprocessing.Pool(processes=pool_size, initializer=init_worker, initargs=(core_queue,)) as pool:
+            pool.map(evaluate_wrapper, tasks)
 
 if __name__ == "__main__":
     main()
