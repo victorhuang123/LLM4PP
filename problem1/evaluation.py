@@ -10,22 +10,44 @@ import psutil
 def get_bind_core_list():
     # get the map list from physic core to logic core
     core_map = {}
+    # get the map list from cpu id to core id
+    physic_map = {}
     with open('/proc/cpuinfo') as f:
+        current_core_id = None
         current_phys_id = None
+        current_logical_id = None
         for line in f:
             # start a block
             if 'processor' in line:
-                logical_id = int(line.split(':')[-1].strip())
+                current_logical_id = int(line.split(':')[-1].strip())
+                current_core_id = None
                 current_phys_id = None
-            if 'core id' in line:
+            if 'physical id' in line:
                 current_phys_id = int(line.split(':')[-1].strip())
-                if current_phys_id not in core_map:
-                    core_map[current_phys_id] = []
-                core_map[current_phys_id].append(logical_id)
+
+            if 'core id' in line:
+                current_core_id = int(line.split(':')[-1].strip())
+                real_core_id = current_phys_id * 1024 + current_core_id
+                if real_core_id not in core_map:
+                    core_map[real_core_id] = []
+                core_map[real_core_id].append(current_logical_id)
+                if current_phys_id not in physic_map:
+                    physic_map[current_phys_id] = set()
+                physic_map[current_phys_id].add(real_core_id)
+    physic_core = []
+    for value in physic_map.values():
+        physic_core.append(sorted(list(value)))
                 
     # get the bind list
-    cores = [v[0] for _, v in sorted(core_map.items())]
-    return [cores[i:i+8] for i in range(0, len(cores) // 8 * 8, 8)]
+    socket_bind_list = []
+    for socket in physic_core:
+        logical_cores = sorted([core_map[c][0] for c in socket])
+        socket_bind_list.append(logical_cores)
+    
+    bind_list = []
+    for socket in socket_bind_list:
+        bind_list.extend(socket[i:i+8] for i in range(0, len(socket) // 8 * 8, 8))
+    return bind_list
 
 def init_worker(core_queue):
     core_list = core_queue.get()
