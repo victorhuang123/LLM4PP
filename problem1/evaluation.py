@@ -47,7 +47,8 @@ def get_bind_core_list():
     bind_list = []
     for socket in socket_bind_list:
         bind_list.extend(socket[i:i+8] for i in range(0, len(socket) // 8 * 8, 8))
-    return bind_list
+    # 留8个核心
+    return bind_list[1:]
 
 def init_worker(core_queue):
     core_list = core_queue.get()
@@ -121,7 +122,7 @@ def main():
     parser.add_argument(
         "--eval-times",
         type=int,
-        default="10",
+        default="5",
         help="The number of tests per code."
     )
     args = parser.parse_args()
@@ -142,7 +143,8 @@ def main():
         for core_lists in bind_core_lists:
             core_queue.put(core_lists)
             
-        with multiprocessing.Pool(processes=pool_size, initializer=init_worker, initargs=(core_queue,)) as pool:
+        #with multiprocessing.Pool(processes=pool_size, initializer=init_worker, initargs=(core_queue,)) as pool:
+        with multiprocessing.Pool(processes=8) as pool:
             pool.map(evaluate_wrapper, tasks)
 
 if __name__ == "__main__":
