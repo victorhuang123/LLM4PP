@@ -8,39 +8,6 @@
 #include <queue>
 #include <type_traits>
 
-#include <xoshiro.h>
-#include <omp.h>
-#include <iostream>
-
-constexpr int NUM_THREADS_SETUP = 32;
-
-int get_random_bit() {
-    // thread-local since rng is not thread-safe and may potentially use many threads to create random numbers in parallel
-    static thread_local xso::rng gen;
-    return gen.sample(0, 1);
-}
-
-int get_random_int_range(int start, int end) {
-    static thread_local xso::rng gen;
-    // return gen[omp_get_thread_num()].sample(start, end);
-    return gen.sample(start, end);
-}
-
-template <typename DType>
-DType get_random_val_range(DType min, DType max) {
-    // auto& g = gen[omp_get_thread_num()];
-    static thread_local xso::rng gen;
-    DType val;
-    if constexpr (std::is_floating_point_v<DType>) {
-        val = gen.sample(min, max);
-        // val = g.sample(min, max);
-    } else if constexpr (std::is_integral_v<DType>) {
-        // val = g.sample(min, max - 1);
-        val = gen.sample(min, max - 1);
-    }
-    return val;
-}
-
 // make sure some parallel model is defined
 #if !defined(USE_SERIAL) && !defined(USE_OMP) && !defined(USE_MPI) && !defined(USE_MPI_OMP) && !defined(USE_KOKKOS) && !defined(USE_CUDA) && !defined(USE_HIP)
 #error "No parallel model not defined"
@@ -54,7 +21,7 @@ DType get_random_val_range(DType min, DType max) {
 #endif
 
 #if !defined(MAX_VALIDATION_ATTEMPTS)
-#define MAX_VALIDATION_ATTEMPTS 3
+#define MAX_VALIDATION_ATTEMPTS 2
 #endif
 
 #if !defined(SPARSE_LA_SPARSITY)
@@ -158,7 +125,6 @@ void fillRandKokkos(Kokkos::View<DType*> &x, DType min, DType max) {
 #endif
 
 
-/*
 template <typename T>
 void fillRandString(T &x, size_t minLen, size_t maxLen) {
     for (int i = 0; i < x.size(); i += 1) {
@@ -170,25 +136,8 @@ void fillRandString(T &x, size_t minLen, size_t maxLen) {
         x[i] = str;
     }
 }
-*/
-
-template <typename T>
-void fillRandString(T &x, size_t minLen, size_t maxLen) {
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
-    for (int i = 0; i < x.size(); i += 1) {
-        // size_t len = rand() % (maxLen - minLen) + minLen;
-        size_t len = get_random_val_range(minLen, maxLen);
-        std::string str(len, ' ');
-        for (int j = 0; j < len; j += 1) {
-            // str[j] = 'a' + rand() % 26;
-            str[j] = 'a' + get_random_val_range(0, 26);
-        }
-        x[i] = str;
-    }
-}
 
 // utility functions
-/*
 template <typename T, typename DType>
 void fillRand(T &x, DType min, DType max) {
     
@@ -206,29 +155,6 @@ void fillRand(T &x, DType min, DType max) {
         x[i] = val;
     }
 }
-*/
-
-template <typename T, typename DType>
-void fillRand(T &x, DType min, DType max) {
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
-    for (int i = 0; i < x.size(); i += 1) {
-        DType val;
-        if constexpr (std::is_floating_point_v<DType>) {
-            // val = (rand() / (double) RAND_MAX) * (max - min) + min;
-            val = get_random_val_range(min, max);
-        } else if constexpr (std::is_integral_v<DType>) {
-            // val = rand() % (max - min) + min;
-            val = get_random_val_range(min, max);
-        } else if constexpr (std::is_same_v<DType, std::complex<double>>) {
-            const double real = get_random_val_range(min, max);
-            const double imag = get_random_val_range(min, max);
-            // const double real = (rand() / (double) RAND_MAX) * (max - min) + min;
-            // const double imag = (rand() / (double) RAND_MAX) * (max - min) + min;
-            val = std::complex<double>(real, imag);
-        }
-        x[i] = val;
-    }
-}
 
 // compare two vectors of floating point numbers
 template <typename Vec, typename FType>
@@ -240,27 +166,4 @@ bool fequal(Vec const& a, Vec const& b, FType epsilon = 1e-6) {
         }
     }
     return true;
-}
-
-void fillRandomUndirectedGraph_(std::vector<int> &A, size_t N) {
-    std::fill(A.begin(), A.end(), 0);
-
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
-    for (int i = 0; i < N; i += 1) {
-        A[i * N + i] = 0;
-        for (int j = i + 1; j < N; j += 1) {
-            // A[i * N + j] = rand() % 2;
-            A[i * N + j] = get_random_bit();
-            A[j * N + i] = A[i * N + j];
-        }
-    }
-}
-
-void fillRandDirectedGraph_(std::vector<int> &A, size_t N) {
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
-    for (int i = 0; i < N; i += 1) {
-        for (int j = 0; j < N; j += 1) {
-            A[i * N + j] = get_random_bit();
-        }
-    }
 }

@@ -55,6 +55,9 @@ void NO_INLINE correctFft(std::vector<std::complex<double>> const& x, std::vecto
 	}
 }
 
+#ifndef SHAPE_CPP
+#define SHAPE_CPP
+
 void fftCooleyTookey(std::vector<std::complex<double>> &x) {
     const size_t N = x.size();
     if (N <= 1) return;
@@ -79,6 +82,7 @@ void fftCooleyTookey(std::vector<std::complex<double>> &x) {
         x[k+N/2] = even[k] - t;
     }
 }
+#endif
 
 #if defined(USE_CUDA)
 // a lot of model outputs assume this is defined for some reason, so just define it

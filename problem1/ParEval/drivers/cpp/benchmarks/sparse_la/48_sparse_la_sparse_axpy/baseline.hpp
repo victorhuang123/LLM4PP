@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cmath>
 
 // struct Element {
 //     size_t index;
@@ -12,30 +13,16 @@
    input: x=[{5, 12}, {8, 3}, {12, -1}], y=[{3, 1}, {5, -2}, {7, 1}, {8, -3}], alpha=1
    output: z=[{3, 1}, {5, 10}, {7, 1}, {12, -1}]
 */
-void NO_INLINE correctSparseAxpy(double alpha, std::vector<Element> const& x, std::vector<Element> const& y, std::vector<double> &z) {
-    size_t xi = 0, yi = 0;
+void NO_INLINE correctSparseAxpy(double alpha, std::vector<Element> const& x, std::vector<Element> const& y, std::vector<Element>& R) {
+    std::map<int, double> m;
+    for(int i=0; i<x.size();i++)	
+	if(m.find(x[i].index)==m.end())	m[x[i].index]  = x[i].value;
+	else				m[x[i].index] += x[i].value;
 
-    while (xi < x.size() && yi < y.size()) {
-        if (x[xi].index < y[yi].index) {
-            z[x[xi].index] += alpha * x[xi].value;
-            ++xi;
-        } else if (x[xi].index > y[yi].index) {
-            z[y[yi].index] += y[yi].value;
-            ++yi;
-        } else {
-            z[x[xi].index] += alpha * x[xi].value + y[yi].value;
-            ++xi;
-            ++yi;
-        }
-    }
+    for(int i=0; i<y.size();i++)	
+	if(m.find(y[i].index)==m.end())	m[y[i].index]  = y[i].value;
+	else				m[y[i].index] += y[i].value;
 
-    while (xi < x.size()) {
-        z[x[xi].index] += alpha * x[xi].value;
-        ++xi;
-    }
-
-    while (yi < y.size()) {
-        z[y[yi].index] += y[yi].value;
-        ++yi;
-    }
+    for(auto i = m.begin(); i != m.end(); i++)  
+   	if(std::abs(i->second) > 1e-4)	R.push_back({(unsigned long)i->first, i->second});
 }

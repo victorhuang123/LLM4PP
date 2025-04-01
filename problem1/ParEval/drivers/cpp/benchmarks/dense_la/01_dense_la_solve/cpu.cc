@@ -29,7 +29,6 @@ void createRandomLinearSystem(std::vector<double> &A, std::vector<double> &b, st
     fillRand(x, -10.0, 10.0);
 
     std::fill(b.begin(), b.end(), 0.0);
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (size_t i = 0; i < N; i++) {
         for (size_t j = 0; j < N; j += 1) {
             b[i] += A[i * N + j] * x[j];

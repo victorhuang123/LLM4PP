@@ -9,8 +9,8 @@
 /* Return the length of the shortest path from source to dest in the undirected graph defined by the adjacency matrix A.
    A is an NxN adjacency matrix stored in row-major. Assume the graph is connected. A is undirected.
    Example:
-
-	 input: [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]], source=0, dest=3
+   
+   input: [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]], source=0, dest=3
    output: 2
 */
 int NO_INLINE correctShortestPathLength(std::vector<int> const& A, size_t N, int source, int dest) {

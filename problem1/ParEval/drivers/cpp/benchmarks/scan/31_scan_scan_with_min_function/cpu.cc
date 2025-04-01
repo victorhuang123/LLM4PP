@@ -32,6 +32,7 @@ Context *init() {
     Context *ctx = new Context();
 
     ctx->x.resize(DRIVER_PROBLEM_SIZE);
+    ctx->output.resize(DRIVER_PROBLEM_SIZE);
 
     reset(ctx);
     return ctx;

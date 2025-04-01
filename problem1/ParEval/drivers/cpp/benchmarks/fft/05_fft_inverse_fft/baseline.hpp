@@ -7,9 +7,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-/* fft. computes fourier transform in-place
-   from https://rosettacode.org/wiki/Fast_Fourier_transform#C++
-*/
+// fft. computes fourier transform in-place from https://rosettacode.org/wiki/Fast_Fourier_transform#C++
 void fft(std::vector<std::complex<double>> &x) {
    // DFT
 	unsigned int N = x.size(), k = N, n;

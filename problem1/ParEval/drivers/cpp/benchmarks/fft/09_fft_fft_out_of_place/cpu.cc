@@ -28,7 +28,6 @@ void reset(Context *ctx) {
     BCAST(ctx->real, DOUBLE);
     BCAST(ctx->imag, DOUBLE);
 
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (size_t i = 0; i < ctx->x.size(); i += 1) {
         ctx->x[i] = std::complex<double>(ctx->real[i], ctx->imag[i]);
     }

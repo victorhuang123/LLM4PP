@@ -34,7 +34,6 @@ void reset(Context *ctx) {
     BCAST(ctx->x, DOUBLE);
     BCAST(ctx->y, DOUBLE);
 
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (int i = 0; i < ctx->points.size(); i += 1) {
         ctx->points[i].x = ctx->x[i];
         ctx->points[i].y = ctx->y[i];

@@ -41,6 +41,7 @@ def main():
     for prompt in prompts:
         baseline_fpath = path_join(args.benchmarks_root, prompt['problem_type'], prompt['name'], 'baseline.hpp')
 
+        print("baseline_fpath:", baseline_fpath)
         if prompt['parallelism_model'] != 'serial' or not path_exists(baseline_fpath):
             continue
 

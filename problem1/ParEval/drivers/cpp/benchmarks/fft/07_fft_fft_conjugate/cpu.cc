@@ -6,7 +6,7 @@
 //    output: [{4,0}, {1,-2.41421}, {0,0}, {1,-0.414214}, {0,0}, {1,0.414214}, {0,0}, {1,2.41421}]
 // */
 // void fftConjugate(std::vector<std::complex<double>> &x) {
-
+#include <iostream>
 #include <algorithm>
 #include <cmath>
 #include <numeric>
@@ -28,7 +28,6 @@ void reset(Context *ctx) {
     BCAST(ctx->real, DOUBLE);
     BCAST(ctx->imag, DOUBLE);
 
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (size_t i = 0; i < ctx->x.size(); i += 1) {
         ctx->x[i] = std::complex<double>(ctx->real[i], ctx->imag[i]);
     }
@@ -72,17 +71,25 @@ bool validate(Context *ctx) {
 
         for (size_t j = 0; j < x.size(); j += 1) {
             x[j] = std::complex<double>(real[j], imag[j]);
+//             std::cout << j << x[j] << '\n';
+//             std::cout << j << y[j] << '\n';
         }
 
         // compute correct result
         std::vector<std::complex<double>> correct = x;
-        fftCooleyTookey(correct);
+        correctFft(correct);
 
         // compute test result
         std::vector<std::complex<double>> test = x;
         fftConjugate(test);
         SYNC();
-        
+       
+
+        for (size_t j = 0; j < TEST_SIZE; j += 1) {
+//             std::cout << "correct" << correct[j] << '\t';
+//             std::cout << "test" << test[j] << '\n';
+        }
+
         bool isCorrect = true;
         if (IS_ROOT(rank)) {
             for (int k = 0; k < TEST_SIZE; k += 1) {

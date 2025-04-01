@@ -36,18 +36,9 @@ void bcastBools(std::vector<bool> &x) {
     #endif
 }
 
-/*
 void reset(Context *ctx) {
     for (int i = 0; i < ctx->x.size(); i += 1) {
         ctx->x[i] = rand() % 2;
-    }
-    bcastBools(ctx->x);
-}
-*/
-void reset(Context *ctx) {
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
-    for (int i = 0; i < ctx->x.size(); i += 1) {
-        ctx->x[i] = get_random_bit();
     }
     bcastBools(ctx->x);
 }

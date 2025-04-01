@@ -6,6 +6,7 @@ from pathlib import Path
 from scipy.stats import gmean
 import numpy as np
 import argparse
+import argparse
 
 # 
 def process_json_files(json_file_paths):
@@ -21,7 +22,57 @@ def process_json_files(json_file_paths):
         except Exception as e:
             print(f"Error loading {file_path}: {e}")
             continue
+    append_list = []
+    for file_path in json_file_paths:
+        parts = file_path.stem
+        split = parts.rsplit('_',4)
+        evaluate, generate, model, workmode = split[-1], split[-2], split[-4], split[-5]
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+        except Exception as e:
+            print(f"Error loading {file_path}: {e}")
+            continue
 
+        for entry in data.get('responses', []):
+            submission = entry.get('submission', {})
+            problem = submission.get('problem', {})
+            problem_id = problem.get('problem_id', None)
+            category = problem.get('category', None)
+            compiled = entry.get('compiled', None)
+            corrected = entry.get('correct', None)
+            
+            runtime = entry.get('runtime', 0)
+            reference_runtime = entry.get('reference_runtime', 0)
+            speedup = reference_runtime / runtime if runtime != 0 else 1
+            
+            unique_id = f"{parts}_{problem_id}"
+            if speedup < 1 and corrected and compiled:
+                # 在测试中, 如果这一次speedup小于1, 且正确, 则记录为负优化
+                negative = True
+            else:
+                negative = False
+            
+            curr_result = {
+                'id': unique_id,
+                'workmode': workmode,
+                'model': model, 
+                'generate': generate,
+                'generate_id': int(generate[3:]),
+                'evaluate': evaluate,
+                'evaluate_id': int(evaluate[4:]),
+                'problem_id': problem_id,
+                'category': category,
+                'compiled': compiled,
+                'corrected': corrected,
+                'negative': negative,
+                # 负优化, 错误的代码加速比设置为1, 相当于0
+                'speedup': max(speedup, 1)
+            }
+            append_list.append(curr_result)
+            
+    return append_list
         for entry in data.get('responses', []):
             submission = entry.get('submission', {})
             problem = submission.get('problem', {})
@@ -85,10 +136,44 @@ def calculate_group_stats(group):
 # 对于同一道题的加速比, 使用算数平均
 # 对于不同题的加速比, 使用几何平均
 
+
+def calculate_group_stats(group):
+    # 计算常规指标的算术平均
+    compiled_mean = group['compiled'].mean()
+    corrected_mean = group['corrected'].mean()
+    negative_mean = group['negative'].mean()
+    
+    # 筛选符合条件的数据点 (compiled=True 且 corrected=True)
+    valid_speedup = group[(group['compiled']) & (group['corrected'])]['speedup']
+    
+    # 计算几何平均或设置默认值
+    speedup_geo_mean = gmean(valid_speedup) if not valid_speedup.empty else 1.0
+    
+    return pd.Series({
+        'compiled': compiled_mean,
+        'corrected': corrected_mean,
+        'negative': negative_mean,
+        'speedup': speedup_geo_mean
+    })
+
+# 对于同一道题的加速比, 使用算数平均
+# 对于不同题的加速比, 使用几何平均
+
 def main():
     parser = argparse.ArgumentParser()
     
+    parser = argparse.ArgumentParser()
+    
     # get all folders in datas
+    parser.add_argument(
+        "--data-dir",
+        type=str,
+        default="./"
+    )
+    args = parser.parse_args()
+    data_dir = args.data_dir
+    # root_dir = Path(__file__).resolve().parent
+    root_dir = Path(data_dir)
     parser.add_argument(
         "--data-dir",
         type=str,
@@ -110,6 +195,7 @@ def main():
     # init pandas
     pd_columns = ['id', 'workmode', 'model', 'generate', 'evaluate', 'problem_id', 'compiled', 'corrected', 'negative', 'speedup']
     df = pd.DataFrame(columns=pd_columns)
+    
     
     if len(subdirs) == 0:
         json_file_paths = [f for f in root_dir.iterdir() if f.is_file() and f.suffix.lower() == '.json']
@@ -142,6 +228,9 @@ def main():
         avg_of_evaluate["speedup"],                         # 满足条件时保留原值（即 gmean 结果）
         1                                        # 否则设为 1
     )
+    
+    # 由于要统计正确代码的平均加速比, 所以先挑出正确的代码
+    
     
     # 由于要统计正确代码的平均加速比, 所以先挑出正确的代码
     
@@ -182,7 +271,7 @@ def main():
     }).reset_index()
 
     avg_of_generate = avg_of_evaluate.groupby(['workmode', 'model', 'problem_id']).apply(calculate_group_stats).reset_index()
-    
+
     # 每个workflow所有代码的均值
     avg_of_workflow = avg_of_problem.groupby(['workmode', 'model']).agg(
         compiled=('compiled', 'mean'),        # 原列名 + 聚合函数后缀
@@ -200,8 +289,6 @@ def main():
         speedup_gmean=('speedup', gmean)          # 显式命名 speedup 的几何平均
     ).reset_index()
     
-    print(avg_of_avg_of_generate)
-    
     # 所有问题speedup的最高值
     best_of_workflow = best_of_generate.groupby(['workmode', 'model']).agg(
         compiled=('compiled', 'mean'),        # 原列名 + 聚合函数后缀
@@ -210,6 +297,27 @@ def main():
         speedup_mean=('speedup', 'mean'),          # 显式命名 speedup 的均值
         speedup_gmean=('speedup', gmean)          # 显式命名 speedup 的几何平均
     ).reset_index()
+    best_of_workflow = best_of_generate.groupby(['workmode', 'model']).agg(
+        compiled=('compiled', 'mean'),        # 原列名 + 聚合函数后缀
+        corrected=('corrected', 'mean'),
+        negative=('negative', 'mean'),
+        speedup_mean=('speedup', 'mean'),          # 显式命名 speedup 的均值
+        speedup_gmean=('speedup', gmean)          # 显式命名 speedup 的几何平均
+    ).reset_index()
+    
+    
+    # 为问题设置难度
+    # 如果best speedup <= 2, 则难度为3
+    # 如果2 < best speedup <= 8, 则难度为2
+    # 如果8 < best speedup, 则难度为1
+    # 首先取workmode='base'的数据
+    base = best_of_generate[best_of_generate['workmode'] == 'base']
+    base['difficulty'] = np.where(base['speedup'] <= 2, 3,
+                                  np.where(base['speedup'] <= 8, 2, 1))
+    # 将problem_id, difficulty保存到json文件中
+    with open('problem_difficulty.json', 'w') as f:
+        json.dump(base[['problem_id', 'difficulty']].to_dict(orient='records'), f)
+    
     
 
     best_of_workflow.rename(columns={'speedup_mean': 'best_speedup_mean'}, inplace=True)
@@ -219,10 +327,17 @@ def main():
     avg_of_workflow_sorted = avg_of_workflow.sort_values(by=['model'], key=lambda x: x.str.len())
 
         
+    
     best_of_workflow_sorted = best_of_workflow.sort_values(by=['model'], key=lambda x: x.str.len())
     print(best_of_workflow_sorted)
     avg_of_avg_of_generate = avg_of_avg_of_generate.sort_values(by=['model'], key=lambda x: x.str.len())
+    print(best_of_workflow_sorted)
+    avg_of_avg_of_generate = avg_of_avg_of_generate.sort_values(by=['model'], key=lambda x: x.str.len())
     
+    avg_of_workflow_sorted['best_speedup_mean'] = best_of_workflow_sorted['best_speedup_mean']
+    avg_of_workflow_sorted['best_speedup_gmean'] = best_of_workflow_sorted['best_speedup_gmean']
+    avg_of_workflow_sorted['avg_positive_speedup_mean'] = avg_of_avg_of_generate['speedup_mean']
+    avg_of_workflow_sorted['avg_positive_speedup_gmean'] = avg_of_avg_of_generate['speedup_gmean']
     avg_of_workflow_sorted['best_speedup_mean'] = best_of_workflow_sorted['best_speedup_mean']
     avg_of_workflow_sorted['best_speedup_gmean'] = best_of_workflow_sorted['best_speedup_gmean']
     avg_of_workflow_sorted['avg_positive_speedup_mean'] = avg_of_avg_of_generate['speedup_mean']

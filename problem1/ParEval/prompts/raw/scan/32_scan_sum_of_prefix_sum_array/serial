@@ -3,5 +3,8 @@
 
    input: [-7, 2, 1, 9, 4, 8]
    output: 15
+   
+   input: [-3, -2, -1, 1, 2, 3]
+   output: -24
 */
 double sumOfPrefixSum(std::vector<double> const& x) {

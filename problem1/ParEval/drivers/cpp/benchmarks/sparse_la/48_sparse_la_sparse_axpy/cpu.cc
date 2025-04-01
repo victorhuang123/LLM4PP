@@ -10,7 +10,7 @@
 //    input: x=[{5, 12}, {8, 3}, {12, -1}], y=[{3, 1}, {5, -2}, {7, 1}, {8, -3}], alpha=1
 //    output: z=[{3, 1}, {5, 10}, {7, 1}, {12, -1}]
 // */
-// void sparseAxpy(double alpha, std::vector<Element> const& x, std::vector<Element> const& y, std::vector<double> &z) {
+// void sparseAxpy(double alpha, std::vector<Element> const& x, std::vector<Element> const& y, std::vector<Element>& R) {
 
 #include <algorithm>
 #include <cmath>
@@ -25,9 +25,9 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<Element> x, y;
+    std::vector<Element> x, y, z;
     std::vector<size_t> xIndices, yIndices;
-    std::vector<double> xValues, yValues, z;
+    std::vector<double> xValues, yValues;
     double alpha;
     size_t N;
 };
@@ -52,7 +52,7 @@ void reset(Context *ctx) {
     std::sort(ctx->x.begin(), ctx->x.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
     std::sort(ctx->y.begin(), ctx->y.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
 
-    std::fill(ctx->z.begin(), ctx->z.end(), 0.0);
+//    std::fill(ctx->z.begin(), ctx->z.end(), 0.0);
 }
 
 Context *init() {
@@ -67,7 +67,7 @@ Context *init() {
     ctx->xValues.resize(nVals);
     ctx->yValues.resize(nVals);
 
-    ctx->z.resize(ctx->N);
+//    ctx->z.resize(ctx->N);
 
     reset(ctx);
     return ctx;
@@ -82,11 +82,13 @@ void NO_OPTIMIZE best(Context *ctx) {
 }
 
 bool validate(Context *ctx) {
-    const size_t TEST_SIZE = 1024;
+    const size_t TEST_SIZE = (1<<21);
     const size_t nVals = TEST_SIZE * SPARSE_LA_SPARSITY;
 
+    printf("nVals: %d\n", nVals);
     std::vector<Element> x(nVals), y(nVals);
-    std::vector<double> correct(TEST_SIZE), test(TEST_SIZE);
+    std::vector<Element> correct, test;
+//    std::vector<double> correct(TEST_SIZE), test(TEST_SIZE);
     std::vector<size_t> xIndices(nVals), yIndices(nVals);
     std::vector<double> xValues(nVals), yValues(nVals);
 
@@ -115,19 +117,27 @@ bool validate(Context *ctx) {
         std::sort(x.begin(), x.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
         std::sort(y.begin(), y.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
 
-        std::fill(correct.begin(), correct.end(), 0.0);
-        std::fill(test.begin(), test.end(), 0.0);
-
+	
         // compute correct result
         correctSparseAxpy(alpha, x, y, correct);
 
         // compute test result
-        // test.clear();
         sparseAxpy(alpha, x, y, test);
         SYNC();
-        
+
+	int equal=true;
+	if(test.size()==correct.size())
+	{
+        	for(int i=0;i<test.size();i++)       
+		{
+			if(test[i].index!=correct[i].index)	equal=false;
+			if(std::abs(test[i].value-correct[i].value)>1e-4)	equal=false;
+		}
+ 	}
+	else	equal = false;
+
         bool isCorrect = true;
-        if (IS_ROOT(rank) && !fequal(correct, test, 1e-4)) {
+        if (IS_ROOT(rank) && !equal) {
             isCorrect = false;
         }
         BCAST_PTR(&isCorrect, 1, CXX_BOOL);

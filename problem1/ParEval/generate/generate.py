@@ -26,19 +26,15 @@ parser.add_argument('--restore_from', help='JSON file to restore old results fro
     'if it already exists and --restart is not specified. Is different from --cache in that it is a JSON file, not a ' +
     'JSONL file, and it is only used to restore old results where the prompt is equivalent. Cached results are ' +
     'prioritized over restored results.')
-parser.add_argument('--max_new_tokens', type=int, default=4096, help='Maximum number of new tokens to generate (default: 1024)')
+parser.add_argument('--max_new_tokens', type=int, default=1024, help='Maximum number of new tokens to generate (default: 1024)')
 parser.add_argument('--num_samples_per_prompt', type=int, default=50, help='Number of code samples to generate (default: 50)')
 parser.add_argument('--temperature', type=float, default=0.2, help='Temperature for controlling randomness (default: 0.2)')
 parser.add_argument('--top_p', type=float, default=0.95, help='Top p value for nucleus sampling (default: 0.95)')
 parser.add_argument('--do_sample', action='store_true', help='Enable sampling (default: False)')
 parser.add_argument('--batch_size', type=int, default=16, help='Batch size for generation (default: 8)')
 parser.add_argument('--prompted', action='store_true', help='Use prompted generation. See StarCoder paper (default: False)')
-parser.add_argument('--code_opt', required=True, help='whether or not this is code optimization')
 parser.add_argument('--hf_token', type=str, help='HuggingFace API token for loading models')
 args = parser.parse_args()
-
-print(f"--- CODE OPT: --- {eval(args.code_opt)}")
-args.code_opt = eval(args.code_opt)
 
 """ Load prompts """
 with open(args.prompts, 'r') as json_file:
@@ -95,25 +91,18 @@ if not args.restart and args.restore_from and os.path.exists(args.restore_from):
 
 
 """ Initialize inference config """
-inference_config = get_inference_config(args.model, prompted=args.prompted, code_opt=args.code_opt)
+inference_config = get_inference_config(args.model, prompted=args.prompted)
 
 # to use a torch.utils.data.DataSet with the HuggingFace pipeline, we need to flatten out the prompts
 # and repeat them for however many samples we want to generate per prompt
 prompts_repeated = [p for p in prompts for _ in range(args.num_samples_per_prompt)]
 
 """ Initialize HuggingFace pipeline for generation """
-# generator = pipeline(model=args.model, torch_dtype=inference_config.get_dtype(), device=0, token=args.hf_token)
-generator = pipeline(task="text-generation", model=args.model, torch_dtype=torch.bfloat16, device=0, model_kwargs = {"use_cache" : True})
-
+generator = pipeline(task="text-generation", model=args.model, torch_dtype=inference_config.get_dtype(), device=0, token=args.hf_token)
 inference_config.init_padding(generator.tokenizer)
 
-
 """ Create a prompt data set to pass to generate method """
-if args.code_opt:
-    prompt_dataset = PromptDataset([inference_config.format_prompt(p["src_code"]) for p in prompts_repeated])
-else:
-    prompt_dataset = PromptDataset([inference_config.format_prompt(p["prompt"]) for p in prompts_repeated])
-
+prompt_dataset = PromptDataset([inference_config.format_prompt(p["prompt"]) for p in prompts_repeated])
 generated_outputs = generator(
     prompt_dataset,
     max_new_tokens=args.max_new_tokens,
@@ -143,12 +132,7 @@ for idx, (prompt, output) in tqdm(enumerate(zip(prompts_repeated, generated_outp
         cur_prompt.update({"temperature": args.temperature, "top_p": args.top_p, "do_sample": args.do_sample, "max_new_tokens": args.max_new_tokens, "prompted": args.prompted})
         cur_prompt["outputs"] = []
         cur_prompt["raw_outputs"] = []
-        if args.code_opt:
-            prompt_str = cur_prompt["src_code"]
-        else:
-            prompt_str = cur_prompt["prompt"]
-            # prompt_str = cur_prompt["omp_prompt_draft"]
-            # prompt_str = cur_prompt["serial_prompt_draft"]
+        prompt_str = cur_prompt["prompt"]
 
     total_tokens += len(generator.tokenizer.encode(output[0]["generated_text"]))
     cleaned_output = inference_config.clean_output(output[0]["generated_text"], prompt_str)
@@ -170,6 +154,5 @@ tokens_per_second = total_tokens / (end_time - start_time)
 print(f"Generated {len(responses)} code samples in {end_time - start_time:.2f} seconds ({tokens_per_second:.2f} tokens per second)")
 
 """ Save responses to JSON file """
-print(f"OUTPUT FILE: {args.output}")
 with open(args.output, 'w') as output_file:
     json.dump(responses, output_file, indent=4)
