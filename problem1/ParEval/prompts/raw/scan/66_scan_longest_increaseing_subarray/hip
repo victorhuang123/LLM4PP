@@ -1,0 +1,10 @@
+/* Return the first longest increasing contiguous subarray in the vector x.
+   i.e. if x=[−2, 1, 2, 0, −1, 2, 3, −5, 4] then [-2, 1, 2], [-1, 2, 3] are both longest increasing contiguous
+   subarray, but [-2, 1, 2] is the first one, thus we return [-2, 1, 2] as the result.
+   Use AMD HIP to compute in parallel. The kernel is launched with at least as many threads as values in x.
+   Example:
+
+   input: [−2, 1, 2, 0, −1, 2, 3, −5, 4]
+   output: [-2, 1, 2]
+*/
+__global__ void longestIncreasingSubarray(const int *x, size_t N, int *output, size_t& M) {

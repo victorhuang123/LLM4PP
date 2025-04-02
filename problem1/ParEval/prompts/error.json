@@ -1,0 +1,74 @@
+[
+    {
+        "problem_type": "search",
+        "language": "cpp",
+        "name": "39_search_xor_contains",
+        "parallelism_model": "serial",
+        "prompt": "/* Return true if `val` is only in one of vectors x or y.\n   Return false if it is in both or neither.\n   Examples:\n\n   input: x=[1,8,4,3,2], y=[3,4,4,1,1,7], val=7\n   output: true\n\n   input: x=[1,8,4,3,2], y=[3,4,4,1,1,7], val=1\n   output: false\n*/\nbool xorContains(std::vector<int> const& x, std::vector<int> const& y, int val) {",
+        "outputs": [
+            "\n   const bool foundInX = std::find(x.begin(), x.end(), val) != x.end();\n   const bool foundInY = std::find(y.begin(), y.end(), val) != y.end();\n\n   return foundInX ^ foundInY;\n}\n",
+            " return 0; }",
+            " undefinedFunction(); }"
+        ]
+    },
+    {
+        "problem_type": "graph",
+        "language": "cpp",
+        "name": "19_graph_shortest_path",
+        "parallelism_model": "serial",
+        "prompt": "/* Return the length of the shortest path from source to dest in the undirected graph defined by the adjacency matrix A.\n   A is an NxN adjacency matrix stored in row-major. A is an undirected graph.\n   Example:\n\n\t input: [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]], source=0, dest=3\n   output: 2\n*/\nint shortestPathLength(std::vector<int> const& A, size_t N, int source, int dest) {",
+        "outputs": [
+            "\n   std::vector<bool> visited(N, false);\n   std::queue<std::pair<int, int>> queue;\n   visited[source] = true;\n   queue.push({source, 0});\n\n   while (!queue.empty()) {\n      auto [current, pathLength] = queue.front();\n      queue.pop();\n\n      if (current == dest) {\n         return pathLength;\n      }\n\n      // Check all adjacent vertices\n      for (int i = 0; i < N; ++i) {\n         if (A[current*N + i] && !visited[i]) {\n               visited[i] = true;\n               queue.push({i, pathLength + 1});\n         }\n      }\n   }\n\n   return std::numeric_limits<int>::max();\n}\n",
+            " return 0; }",
+            " undefinedFunction(); }"
+        ]
+    },
+    {
+        "problem_type": "reduce",
+        "language": "cpp",
+        "name": "25_reduce_xor",
+        "parallelism_model": "serial",
+        "prompt": "/* Return the logical XOR reduction of the vector of bools x.\n   Example:\n\n   input: [false, false, false, true]\n   output: true\n*/\nbool reduceLogicalXOR(std::vector<bool> const& x) {",
+        "outputs": [
+            "\n    return std::reduce(x.begin(), x.end(), false, [] (const auto &a, const auto &b) {\n        return a != b;\n    });\n}\n",
+            " return 0; }",
+            " undefinedFunction(); }"
+        ]
+    },
+    {
+        "problem_type": "transform",
+        "language": "cpp",
+        "name": "71_transform_map_function",
+        "parallelism_model": "serial",
+        "prompt": "bool isPowerOfTwo(int x) {\n\treturn (x > 0) && !(x & (x - 1));\n}\n\n/* Apply the isPowerOfTwo function to every value in x and store the results in mask.\n   Example:\n\n   input: [8, 0, 9, 7, 15, 64, 3]\n   output: [true, false, false, false, false, true, false]\n*/\nvoid mapPowersOfTwo(std::vector<int> const& x, std::vector<bool> &mask) {",
+        "outputs": [
+            "\n    for (int i = 0; i < x.size(); i++) {\n        #if defined(USE_CUDA) || defined(USE_HIP)\n        mask[i] = isPowerOfTwoHOST(x[i]);\n        #else\n        mask[i] = isPowerOfTwo(x[i]);\n        #endif\n    }\n}",
+            " }",
+            " undefinedFunction(); }"
+        ]
+    },
+    {
+        "problem_type": "transform",
+        "language": "cpp",
+        "name": "71_transform_map_function",
+        "parallelism_model": "serial",
+        "prompt": "bool isPowerOfTwo(int x) {\n\treturn (x > 0) && !(x & (x - 1));\n}\n\n/* Apply the isPowerOfTwo function to every value in x and store the results in mask.\n   Example:\n\n   input: [8, 0, 9, 7, 15, 64, 3]\n   output: [true, false, false, false, false, true, false]\n*/\nvoid mapPowersOfTwo(std::vector<int> const& x, std::vector<bool> &mask) {",
+        "outputs": [
+            "\n    return (x > 0) && !(x & (x - 1));\n}\n#endif\n\n\n/* Apply the isPowerOfTwo function to every value in x and store the results in mask.\n   Example:\n   \n   input: [8, 0, 9, 7, 15, 64, 3]\n   output: [true, false, false, false, false, true, false]\n*/\nvoid NO_INLINE correctMapPowersOfTwo(std::vector<int> const& x, std::vector<bool> &mask) {\n    for (int i = 0; i < x.size(); i++) {\n        #if defined(USE_CUDA) || defined(USE_HIP)\n        mask[i] = isPowerOfTwoHOST(x[i]);\n        #else\n        mask[i] = isPowerOfTwo(x[i]);\n        #endif\n    }\n}",
+            " return 0; }",
+            " undefinedFunction(); }"
+        ]
+    },
+    {
+        "problem_type": "fft",
+        "language": "cpp",
+        "name": "05_fft_inverse_fft",
+        "parallelism_model": "serial",
+        "prompt": "/* forward declare fft. computes fourier transform in-place */\nvoid fft(std::vector<std::complex<double>> &x);\n\n/* Compute the inverse fourier transform of x in-place.\n   Example:\n   \n   input: [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]\n   output: [{0.5,0}, {0.125,0.301777}, {0,-0}, {0.125,0.0517767}, {0,-0}, {0.125,-0.0517767}, {0,-0}, {0.125,-0.301777}]\n*/\nvoid ifft(std::vector<std::complex<double>> &x) {",
+        "outputs": [
+            "\n   // conjugate the complex numbers\n   std::transform(x.begin(), x.end(), x.begin(), [](auto const& val) { return std::conj(val); });\n\n   // forward fft\n   fft( x );\n\n   // conjugate the complex numbers again\n   std::transform(x.begin(), x.end(), x.begin(), [](auto const& val) { return std::conj(val); });\n\n   // scale the numbers\n   std::transform(x.begin(), x.end(), x.begin(), [&](std::complex<double> c) { return c / static_cast<double>(x.size()); });\n}\n\n#if defined(USE_CUDA)\n// a lot of model outputs assume this is defined for some reason, so just define it\n__device__ DOUBLE_COMPLEX_T cexp(DOUBLE_COMPLEX_T arg) {\n   DOUBLE_COMPLEX_T res;\n   float s, c;\n   float e = expf(arg.x);\n   sincosf(arg.y, &s, &c);\n   res.x = c * e;\n   res.y = s * e;\n   return res;\n}\n\n__device__ DOUBLE_COMPLEX_T cuCexp(DOUBLE_COMPLEX_T arg) {\n   return cexp(arg);\n}\n\n__device__ DOUBLE_COMPLEX_T hipCexp(DOUBLE_COMPLEX_T arg) {\n   return cexp(arg);\n}\n#endif",
+            " }",
+            " undefinedFunction(); }"
+        ]
+    }
+]

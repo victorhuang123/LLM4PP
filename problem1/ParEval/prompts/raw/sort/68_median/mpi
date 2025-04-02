@@ -1,0 +1,12 @@
+/* Given a vector x, please return its Median. The Median is the middle value in an ordered integer vector. If the size of the vector is even, there is no middle value, and the median is the mean of the two middle values.
+   Use MPI to compute in parallel. Assume MPI has already been initialized.
+   Every rank has a complete copy of x. Store the result in output on rank 0.
+   Example:
+
+   input: [2, 3, 4]
+   output: 3
+
+   input: [2, 3]
+   output: 2.5
+*/
+float median(std::vector<int> &x) {

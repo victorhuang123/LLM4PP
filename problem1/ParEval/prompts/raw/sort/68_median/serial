@@ -1,0 +1,11 @@
+/* Given a vector x, please return its Median. The Median is the middle value in an ordered integer vector. If the size of the vector is even, there is no middle value, and the median is the mean of the two middle values.
+   
+   Example:
+
+   input: [2, 3, 4]
+   output: 3
+
+   input: [2, 3]
+   output: 2.5
+*/
+float median(std::vector<int> &x) {
