@@ -149,6 +149,7 @@ def main():
             run_timeout=args.run_timeout,
             code_opt = args.code_opt
         )
+        print(prompt)
         driver.test_all_outputs_in_prompt(prompt)
 
         # go ahead and write out outputs now

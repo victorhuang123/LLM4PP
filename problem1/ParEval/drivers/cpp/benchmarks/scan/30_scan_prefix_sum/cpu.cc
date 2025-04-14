@@ -36,11 +36,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    prefixSum(ctx->x, ctx->output);
+    generated::prefixSum(ctx->x, ctx->output);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctPrefixSum(ctx->x, ctx->output);
+    baseline::prefixSum(ctx->x, ctx->output);
 }
 
 bool validate(Context *ctx) {
@@ -60,10 +60,10 @@ bool validate(Context *ctx) {
         std::fill(test.begin(), test.end(), 0.0);
 
         // compute correct result
-        correctPrefixSum(input, correct);
+        baseline::prefixSum(input, correct);
 
         // compute test result
-        prefixSum(input, test);
+        generated::prefixSum(input, test);
         SYNC();
 
         bool isCorrect = true;

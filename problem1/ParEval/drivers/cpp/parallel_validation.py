@@ -30,7 +30,6 @@ class OMPValidator(Validator):
 
     """ Validate that the given source uses OpenMP. """
     def validate(self, source: str) -> bool:
-        return True
         return self.must_contain(source, "#pragma omp")
 
 

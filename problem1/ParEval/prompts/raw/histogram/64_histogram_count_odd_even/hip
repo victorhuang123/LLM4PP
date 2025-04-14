@@ -1,0 +1,11 @@
+/* Count the number of odd and even numbers in a given integer vector x
+   Use AMD HIP to compute in parallel. The kernel is launched with at least N threads.
+   Examples:
+
+   input: [7, 4, 3, 2, 1]
+   output: [3, 2]
+
+   input: [5, 3, 2 1]
+   output: [3, 1]
+*/
+__global__ void countOddEven(const int *x, size_t N, size_t bins[2]) {

@@ -1,0 +1,11 @@
+/* Count the number of odd and even numbers in a given integer vector x
+   Use Kokkos to compute in parallel. Assume Kokkos has already been initialized.
+   Examples:
+
+   input: [7, 4, 3, 2, 1]
+   output: [3, 2]
+
+   input: [5, 3, 2 1]
+   output: [3, 1]
+*/
+void countOddEven(Kokkos::View<const int*> const& x, Kokkos::View<size_t[2]> &bins) {

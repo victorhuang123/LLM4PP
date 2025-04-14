@@ -48,11 +48,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    cellsXOR(ctx->input, ctx->output, ctx->N);
+    generated::cellsXOR(ctx->input, ctx->output, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctCellsXOR(ctx->input, ctx->output, ctx->N);
+    baseline::cellsXOR(ctx->input, ctx->output, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -72,10 +72,10 @@ bool validate(Context *ctx) {
         BCAST(input, INT);
 
         // compute correct result
-        correctCellsXOR(input, correct, TEST_SIZE);
+        baseline::cellsXOR(input, correct, TEST_SIZE);
 
         // compute test result
-        cellsXOR(input, test, TEST_SIZE);
+        generated::cellsXOR(input, test, TEST_SIZE);
         SYNC();
 
         bool isCorrect = true;

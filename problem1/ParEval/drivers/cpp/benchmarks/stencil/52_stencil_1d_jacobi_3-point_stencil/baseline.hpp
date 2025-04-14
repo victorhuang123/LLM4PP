@@ -10,7 +10,7 @@
    input: [9, -6, -1, 2, 3]
    output: [1, 2/3, -5/3, 4/3, 5/3]
 */
-void NO_INLINE correctJacobi1D(std::vector<double> const& input, std::vector<double> &output) {
+void NO_INLINE jacobi1D(std::vector<double> const& input, std::vector<double> &output) {
     for (size_t i = 0; i < input.size(); i++) {
         double sum = 0.0;
         if (i > 0) {

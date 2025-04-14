@@ -8,7 +8,7 @@
    input: A=[[1,4,2], [1,2,3], [2,1,3]] b=[11, 11, 13]
    output: x=[3, 1, 2]
 */
-void NO_INLINE correctSolveLinearSystem(std::vector<double> const& A, std::vector<double> const& b, std::vector<double> &x, size_t N) {
+void NO_INLINE solveLinearSystem(std::vector<double> const& A, std::vector<double> const& b, std::vector<double> &x, size_t N) {
    // Create a copy of A to perform Gaussian elimination
    std::vector<double> A_copy = A;
    std::vector<double> b_copy = b;

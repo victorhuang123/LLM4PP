@@ -46,11 +46,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    sortComplexByMagnitude(ctx->x);
+    generated::sortComplexByMagnitude(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSortComplexByMagnitude(ctx->x);
+    baseline::sortComplexByMagnitude(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -76,10 +76,10 @@ bool validate(Context *ctx) {
         }
 
         // compute correct result
-        correctSortComplexByMagnitude(correct);
+        baseline::sortComplexByMagnitude(correct);
 
         // compute test result
-        sortComplexByMagnitude(test);
+        generated::sortComplexByMagnitude(test);
         SYNC();
         
         bool isCorrect = true;

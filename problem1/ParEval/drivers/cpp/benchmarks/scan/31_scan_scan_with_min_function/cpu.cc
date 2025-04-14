@@ -38,11 +38,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    partialMinimums(ctx->x);
+    generated::partialMinimums(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctPartialMinimums(ctx->x);
+    baseline::partialMinimums(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -61,11 +61,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         correct = input;
-        correctPartialMinimums(correct);
+        baseline::partialMinimums(correct);
 
         // compute test result
         test = input;
-        partialMinimums(test);
+        generated::partialMinimums(test);
         SYNC();
 
         bool isCorrect = true;

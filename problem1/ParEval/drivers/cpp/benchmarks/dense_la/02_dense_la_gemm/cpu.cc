@@ -49,11 +49,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    gemm(ctx->A, ctx->B, ctx->C, ctx->M, ctx->K, ctx->N);
+    generated::gemm(ctx->A, ctx->B, ctx->C, ctx->M, ctx->K, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctGemm(ctx->A, ctx->B, ctx->C, ctx->M, ctx->K, ctx->N);
+    baseline::gemm(ctx->A, ctx->B, ctx->C, ctx->M, ctx->K, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -76,10 +76,10 @@ bool validate(Context *ctx) {
         BCAST(B, DOUBLE);
 
         // compute correct result
-        correctGemm(A, B, correct, TEST_SIZE, TEST_SIZE, TEST_SIZE);
+        baseline::gemm(A, B, correct, TEST_SIZE, TEST_SIZE, TEST_SIZE);
 
         // compute test result
-        gemm(A, B, test, TEST_SIZE, TEST_SIZE, TEST_SIZE);
+        generated::gemm(A, B, test, TEST_SIZE, TEST_SIZE, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

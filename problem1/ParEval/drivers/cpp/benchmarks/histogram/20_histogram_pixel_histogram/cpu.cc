@@ -42,11 +42,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    pixelCounts(ctx->image, ctx->bins);
+    generated::pixelCounts(ctx->image, ctx->bins);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctPixelCounts(ctx->image, ctx->bins);
+    baseline::pixelCounts(ctx->image, ctx->bins);
 }
 
 bool validate(Context *ctx) {
@@ -68,10 +68,10 @@ bool validate(Context *ctx) {
         std::fill(test.begin(), test.end(), 0);
 
         // compute correct result
-        correctPixelCounts(image, correct);
+        baseline::pixelCounts(image, correct);
 
         // compute test result
-        pixelCounts(image, test);
+        generated::pixelCounts(image, test);
         SYNC();
         
         bool isCorrect = true;

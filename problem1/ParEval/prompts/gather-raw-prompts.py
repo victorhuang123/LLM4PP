@@ -214,11 +214,13 @@ def parse_raw_prompt(
     prompts = []
     for model in prompt_paths:
         model_path = os.path.join(fpath, model)
+        print("model_path:", model_path)
         if not os.path.isfile(model_path):
             raise ValueError(f"Expected {model_path} to be a file")
 
         # get the parser and read in the contents of the prompt
         parser = parsers[model]
+        prompt = []
         with open(model_path, "r") as fp:
             prompt = fp.read()
         

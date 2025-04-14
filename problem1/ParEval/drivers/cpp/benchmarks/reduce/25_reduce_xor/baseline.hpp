@@ -8,7 +8,7 @@
    input: [false, false, false, true]
    output: true
 */
-bool correctReduceLogicalXOR(std::vector<bool> const& x) {
+bool reduceLogicalXOR(std::vector<bool> const& x) {
     return std::reduce(x.begin(), x.end(), false, [] (const auto &a, const auto &b) {
         return a != b;
     });

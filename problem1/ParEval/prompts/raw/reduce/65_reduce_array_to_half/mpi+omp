@@ -1,0 +1,18 @@
+/* Given an integer array x. You can choose a set of integers and remove all the occurrences of these integers in the array.
+   Return the minimum size of the set so that at least half of the integers of the array are removed.
+   Use MPI and OpenMP to compute in parallel. Assume MPI is already initialized.
+   Every rank has a complete copy of x. Return the result on all ranks.
+
+   Example:
+
+   input: x=[[3, 3, 3, 3, 5, 5, 5, 2, 2, 7]
+   output: 2
+   explanation: Choosing {3,7} will make the new array [5,5,5,2,2] which has size 5 (i.e equal to half of the size of the old array).
+Possible sets of size 2 are {3,5},{3,2},{5,2}.
+Choosing set {2,7} is not possible as it will make the new array [3,3,3,3,5,5,5] which has a size greater than half of the size of the old array.
+
+   input: x = [7,7,7,7,7,7]
+   output: 1
+   explanation: The only possible set you can choose is {7}. This will make the new array empty.
+*/
+int reduceArrayToHalf(std::vector<int> const& x) {

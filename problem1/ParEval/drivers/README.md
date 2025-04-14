@@ -14,10 +14,15 @@ make
 
 ## Running the prompts
 Given a prompt and output data set in `generated-outputs.json` you can run each
-of the generated outputs using the below command.
+of the generated outputs using the below command.  If use the data set in `../prompts/all_serial_runall.json`
+you can test all 72 problems in one run. 
 
 ```sh
 python run-all.py generated-outputs.json
+
+or
+
+python run-all.py ../prompts/all_serial_runall.json
 
 # usage: run-all.py [-h] [-o OUTPUT] [--scratch-dir SCRATCH_DIR] [--launch-configs LAUNCH_CONFIGS] [--problem-sizes PROBLEM_SIZES] [--yes-to-all]
 #                   [--dry] [--overwrite] [--hide-progress]
@@ -62,8 +67,6 @@ python run-all.py generated-outputs.json
 #                         logging level
 #   --log-build-errors    On build error, display the stderr of the build process.
 #   --log-runs            Display the stderr and stdout of runs.
-#   --launch-configs      Use launch-configs-speedcode.json, this specifies how the executables are run.
-#   --code_opt            Set to True if want to run evaluation on a Code Optimization task and False to run evaluation on a code completion task. Set this to True.
 ```
 
 The launch configurations (node counts and launch commands) are defined in a
@@ -112,9 +115,3 @@ execute `run-all.py` on a login node without the `--dry` flag.
 
 MPI benchmarks require the correct result to be returned on rank 0. The initial
 data distribution varies by problem.
-
-### Launch Configs
-Change `launch-configs-speedcode.json` as described above to tell ParEval how to run the executable. Currently, the executables are run directly on the host machine. The launch configs used by ParEval are in `launch-configs.json`.
-
-### Problem Sizes
-Problem sizes determine the size of the input when doing evaluation. `problem-sizes-large.json` is a sample one we used to ensure that the input sizes are sufficiently large that the overhead of parallelism does not dominate. You can adjust these when running your evaluation.

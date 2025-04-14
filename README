@@ -1,0 +1,4 @@
+Thanks for your time & interest in evaluating our submission to LLM4PP'25.
+
+Please prepare base environment on your machine as introduced in [Official Staring Kit Repo](https://github.com/SpeedCodeOrg/LLM4PP).
+Before running our code for both problems, please check if all the packages listed in `requirements.txt` get installed.

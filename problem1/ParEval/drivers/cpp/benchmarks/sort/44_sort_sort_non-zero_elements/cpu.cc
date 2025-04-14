@@ -45,11 +45,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    sortIgnoreZero(ctx->x);
+    generated::sortIgnoreZero(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSortIgnoreZero(ctx->x);
+    baseline::sortIgnoreZero(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -65,11 +65,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<int> correctResult = input;
-        correctSortIgnoreZero(correctResult);
+        baseline::sortIgnoreZero(correctResult);
 
         // compute test result
         std::vector<int> testResult = input;
-        sortIgnoreZero(testResult);
+        generated::sortIgnoreZero(testResult);
         SYNC();
         
         bool isCorrect = true;

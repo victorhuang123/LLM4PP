@@ -1,0 +1,11 @@
+/* Count the number of odd and even numbers in a given integer vector x
+   Use OpenMP to compute in parallel.
+   Examples:
+
+   input: [7, 4, 3, 2, 1]
+   output: [3, 2]
+
+   input: [5, 3, 2 1]
+   output: [3, 1]
+*/
+void countOddEven(std::vector<int> const& x, std::array<size_t, 2> &bins) {

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-// const int edgeKernel[3][3] = {{-1, -1, -1}, {-1, 8, -1}, {-1, -1, -1}};
+const int edgeKernel[3][3] = {{-1, -1, -1}, {-1, 8, -1}, {-1, -1, -1}};
 
 /* Convolve the edge kernel with a grayscale image. Each pixel will be replaced with
    the dot product of itself and its neighbors with the edge kernel.
@@ -19,7 +19,7 @@
             [36, 0, 0, 255],
             [255, 39, 0, 255]]
 */
-void NO_INLINE correctConvolveKernel(std::vector<int> const& imageIn, std::vector<int> &imageOut, size_t N) {
+void NO_INLINE convolveKernel(std::vector<int> const& imageIn, std::vector<int> &imageOut, size_t N) {
     for (size_t i = 0; i < N; i++) {
         for (size_t j = 0; j < N; j++){
             int sum = 0;

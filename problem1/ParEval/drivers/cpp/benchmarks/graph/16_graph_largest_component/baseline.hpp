@@ -22,7 +22,7 @@ void dfs(std::vector<int> const& A, int node, size_t N, std::vector<bool> &visit
 	 input: [[0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
    output: 2
 */
-int NO_INLINE correctLargestComponent(std::vector<int> const& A, size_t N) {
+int NO_INLINE largestComponent(std::vector<int> const& A, size_t N) {
    std::vector<bool> visited(N, false);
    int maxCount = 0;
    for (int i = 0; i < N; i += 1) {

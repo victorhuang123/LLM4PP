@@ -1,0 +1,9 @@
+Validation: PASS
+Time: 0.00001880000345
+BestSequential: 0.00001840004697
+问题: 65_reduce_array_to_half
+临时文件夹已存在，正在删除...
+已复制: /Users/zhangxu/Codes/competition/LLM4PP/problem1/ParEval/drivers/cpp/benchmarks/reduce/65_reduce_array_to_half/cpu.cc -> /Users/zhangxu/Codes/competition/LLM4PP/problem1/ParEval/drivers/temp_folder/cpu.cc
+已创建baseline命名空间版本: /Users/zhangxu/Codes/competition/LLM4PP/problem1/ParEval/drivers/temp_folder/baseline.hpp
+已创建generated命名空间版本: /Users/zhangxu/Codes/competition/LLM4PP/problem1/ParEval/drivers/temp_folder/generated-code.hpp
+所有文件处理完成，保存在: /Users/zhangxu/Codes/competition/LLM4PP/problem1/ParEval/drivers/temp_folder

@@ -52,11 +52,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    convolveKernel(ctx->input, ctx->output, ctx->N);
+    generated::convolveKernel(ctx->input, ctx->output, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctConvolveKernel(ctx->input, ctx->output, ctx->N);
+    baseline::convolveKernel(ctx->input, ctx->output, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -76,10 +76,10 @@ bool validate(Context *ctx) {
         BCAST(input, INT);
 
         // compute correct result
-        correctConvolveKernel(input, correct, TEST_SIZE);
+        baseline::convolveKernel(input, correct, TEST_SIZE);
 
         // compute test result
-        convolveKernel(input, test, TEST_SIZE);
+        generated::convolveKernel(input, test, TEST_SIZE);
         SYNC();
 
         bool isCorrect = true;

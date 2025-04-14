@@ -40,12 +40,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int sm = findKthSmallest(ctx->x, ctx->k);
+    int sm = generated::findKthSmallest(ctx->x, ctx->k);
     (void)sm;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int sm = correctFindKthSmallest(ctx->x, ctx->k);
+    int sm = baseline::findKthSmallest(ctx->x, ctx->k);
     (void)sm;
 }
 
@@ -68,10 +68,10 @@ bool validate(Context *ctx) {
         BCAST_PTR(&k, 1, INT);
 
         // compute correct result
-        int correct = correctFindKthSmallest(x, k);
+        int correct = baseline::findKthSmallest(x, k);
 
         // compute test result
-        int test = findKthSmallest(x, k);
+        int test = generated::findKthSmallest(x, k);
         SYNC();
         
         bool isCorrect = true;

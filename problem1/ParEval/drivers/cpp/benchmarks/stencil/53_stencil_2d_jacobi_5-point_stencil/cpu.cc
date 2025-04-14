@@ -44,11 +44,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    jacobi2D(ctx->input, ctx->output, ctx->N);
+    generated::jacobi2D(ctx->input, ctx->output, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctJacobi2D(ctx->input, ctx->output, ctx->N);
+    baseline::jacobi2D(ctx->input, ctx->output, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -68,10 +68,10 @@ bool validate(Context *ctx) {
         BCAST(input, DOUBLE);
 
         // compute correct result
-        correctJacobi2D(input, correct, TEST_SIZE);
+        baseline::jacobi2D(input, correct, TEST_SIZE);
 
         // compute test result
-        jacobi2D(input, test, TEST_SIZE);
+        generated::jacobi2D(input, test, TEST_SIZE);
         SYNC();
 
         bool isCorrect = true;

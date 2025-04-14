@@ -23,7 +23,6 @@ struct Context {
     size_t N;
 };
 
-/*
 void fillRandomUndirectedGraph(std::vector<int> &A, size_t N) {
     std::fill(A.begin(), A.end(), 0);
     for (int i = 0; i < N; i += 1) {
@@ -33,11 +32,6 @@ void fillRandomUndirectedGraph(std::vector<int> &A, size_t N) {
             A[j * N + i] = A[i * N + j];
         }
     }
-}
-*/
-
-void fillRandomUndirectedGraph(std::vector<int> &A, size_t N) {
-    fillRandomUndirectedGraph_(A, N);
 }
 
 void reset(Context *ctx) {
@@ -56,12 +50,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int cc = componentCount(ctx->A, ctx->N);
+    int cc = generated::componentCount(ctx->A, ctx->N);
     (void)cc;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int cc = correctComponentCount(ctx->A, ctx->N);
+    int cc = baseline::componentCount(ctx->A, ctx->N);
     (void)cc;
 }
 
@@ -80,10 +74,10 @@ bool validate(Context *ctx) {
         BCAST(A, INT);
 
         // compute correct result
-        int correct = correctComponentCount(A, TEST_SIZE);
+        int correct = baseline::componentCount(A, TEST_SIZE);
 
         // compute test result
-        int test = componentCount(A, TEST_SIZE);
+        int test = generated::componentCount(A, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

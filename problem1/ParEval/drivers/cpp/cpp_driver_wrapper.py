@@ -35,8 +35,8 @@ DRIVER_MAP = {
 """ Compiler settings """
 COMPILER_SETTINGS = {
     # use c++20 as fast random number generation requires it
-    "serial": {"CXX": "g++", "CXXFLAGS": "-std=c++20 -O3"},
-    "omp": {"CXX": "g++", "CXXFLAGS": "-std=c++20 -O3 -fopenmp"},
+    "serial": {"CXX": "g++-14", "CXXFLAGS": "-std=c++20 -O3"},
+    "omp": {"CXX": "g++-14", "CXXFLAGS": "-std=c++20 -O3 -fopenmp"},
     "mpi": {"CXX": "mpicxx", "CXXFLAGS": "-std=c++17 -O3"},
     "mpi+omp": {"CXX": "mpicxx", "CXXFLAGS": "-std=c++17 -O3 -fopenmp"},
     "kokkos": {"CXX": "g++", "CXXFLAGS": "-std=c++17 -O3 -fopenmp -I../tpl/kokkos/build/include ../tpl/kokkos/build/lib64/libkokkoscore.a ../tpl/kokkos/build/lib64/libkokkoscontainers.a ../tpl/kokkos/build/lib64/libkokkossimd.a"},
@@ -47,25 +47,25 @@ COMPILER_SETTINGS = {
 # There are certain problems that don't play nice with code optimization.
 # baseline code sometimes defines helper functions that will conflict with a LLM's output.
 # This only affects a few problems below, so this is a quick and dirty hack to solve some compiler errors that arise for these problems.
-def check_code_compile_errors(output):
-    if "dfs(" in output:
-        output = output.replace("dfs(", "dfs_helper(")
+# def check_code_compile_errors(output):
+#     if "dfs(" in output:
+#         output = output.replace("dfs(", "dfs_helper(")
 
-    if "void fft(std::vector<std::complex<double>> &x)" in output:
-        output = output.replace("fft(", "fft_helper(")
-        output = output.replace("ifft_helper(", "ifft(")
+#     if "void fft(std::vector<std::complex<double>> &x)" in output:
+#         output = output.replace("fft(", "fft_helper(")
+#         output = output.replace("ifft_helper(", "ifft(")
 
-    return output
+#     return output
 
-def check_duplicate_function_names(output):
-    function_names = get_cpp_function_names(output)
+# def check_duplicate_function_names(output):
+#     function_names = get_cpp_function_names(output)
 
-    # only check for repeating the same function name
-    # this is a hack and assumes this scenario only occurs when there is 1 function defined and repeated multiple times
-    if len(set(function_names)) == 1 and len(function_names) > 1:
-        output = get_code_until_first_function(output)
+#     # only check for repeating the same function name
+#     # this is a hack and assumes this scenario only occurs when there is 1 function defined and repeated multiple times
+#     if len(set(function_names)) == 1 and len(function_names) > 1:
+#         output = get_code_until_first_function(output)
 
-    return output
+#     return output
 
 def build_kokkos(driver_src: PathLike, output_root: PathLike, problem_size: str = "(1<<20)"):
     """ Custom steps for the Kokkos programs, since they require cmake """
@@ -88,10 +88,33 @@ class CppDriverWrapper(DriverWrapper):
         super().__init__(**kwargs)
         self.model_driver_file = os.path.join("cpp", "models", DRIVER_MAP[self.parallelism_model])
 
-    def write_source(self, content: str, fpath: PathLike) -> bool:
+    def add_namespace_after_includes(self, content, namespace_name):
+            lines = content.split('\n')
+            insert_pos = 0
+            
+            # 找到最后一个 #include 语句的位置
+            for i, line in enumerate(lines):
+                if line.strip().startswith('#include'):
+                    insert_pos = i + 1
+            
+            # 在最后一个 include 后插入 namespace 开始
+            result_lines = lines[:insert_pos]
+            result_lines.append(f"\nnamespace {namespace_name} {{")
+            result_lines.extend(lines[insert_pos:])
+            result_lines.append(f"}} // namespace {namespace_name}")
+            
+            return '\n'.join(result_lines)
+    
+    def write_source(self, content: str, fpath: PathLike, namespace: str = None) -> bool:
         """ Write the given c++ source to the given file. """
-        with open(fpath, "w") as fp:
-            fp.write(content)
+        # print("--- WRITING SOURCE ---")
+        # print(content)
+        if namespace:
+            with open(fpath, "w") as fp:
+                fp.write(self.add_namespace_after_includes(content, namespace))
+        else:
+            with open(fpath, "w") as fp:
+                fp.write(content)
         return True
 
     def patch_prompt(self, content: str) -> str:
@@ -105,6 +128,7 @@ class CppDriverWrapper(DriverWrapper):
 
     def compile(
         self, 
+        temp_dir: PathLike,
         *binaries: PathLike, 
         output_path: PathLike = "a.out", 
         CXX: str = "g++", 
@@ -112,6 +136,16 @@ class CppDriverWrapper(DriverWrapper):
         problem_size: str = "(1<<20)"
     ) -> BuildOutput:
         """ Compile the given binaries into a single executable. """
+        #print all files in the temp_dir
+        # print(temp_dir)
+        # print("--- temp_dir files ---")
+        # with os.scandir(temp_dir) as it:
+        #     for entry in it:
+        #         if entry.is_file():
+        #             print(entry.name)
+        #             with open(entry.path, "r") as f:
+        #                 content = f.read()
+        #                 print(content)
         if self.parallelism_model == "kokkos":
             driver_src = [b for b in binaries if b.endswith(".cc")][0]
             compile_process = build_kokkos(driver_src, os.path.dirname(output_path), problem_size=problem_size)
@@ -119,8 +153,13 @@ class CppDriverWrapper(DriverWrapper):
             binaries_str = ' '.join(binaries)
             macro = f"-DUSE_{self.parallelism_model.upper()}"
             cmd = f"{CXX} {CXXFLAGS} -Icpp -Icpp/models {macro} {binaries_str} -o {output_path}"
+            print(cmd)
             try:
                 compile_process = run_command(cmd, timeout=self.build_timeout, dry=self.dry)
+                with os.scandir(temp_dir) as it:
+                    for entry in it:
+                        if entry.is_file():
+                            print(entry.name)
             except subprocess.TimeoutExpired as e:
                 return BuildOutput(-1, str(e.stdout), f"[Timeout] {str(e.stderr)}")
         return BuildOutput(compile_process.returncode, compile_process.stdout, compile_process.stderr)
@@ -143,7 +182,7 @@ class CppDriverWrapper(DriverWrapper):
 
     def test_single_output(self, prompt: str, output: str, test_driver_file: PathLike, problem_size: str) -> GeneratedTextResult:
         """ Test a single generated output. """
-        code_opt = True
+        code_opt = False
 
         logging.debug(f"Testing output:\n{output}")
         with tempfile.TemporaryDirectory(dir=self.scratch_dir) as tmpdir:
@@ -153,14 +192,30 @@ class CppDriverWrapper(DriverWrapper):
 
             # include the entire C++ standard library as well as header for vectorization
             include_header = "#include <bits/stdc++.h>\n#include <immintrin.h>\n"
-            if self.code_opt:
-                output = check_code_compile_errors(output)
-                output = check_duplicate_function_names(output)
-                write_success = self.write_source(include_header+"\n"+output, src_path)
+            include_header = "#include <bits/stdc++.h>\n"
+            # if self.code_opt:
+            if code_opt:
+                # output = check_code_compile_errors(output)
+                # output = check_duplicate_function_names(output)
+                write_success = self.write_source(include_header+"\n"+output, src_path, "generated")
             else:
                 prompt = self.patch_prompt(prompt)
-                write_success = self.write_source(include_header+"\n"+prompt+"\n"+output, src_path)
-
+                write_success = self.write_source(include_header+"\n"+prompt+"\n"+output, src_path, "generated")
+            # print("testdriver_file", test_driver_file)
+            baseline_path = os.path.join(os.path.dirname(test_driver_file), "baseline.hpp")
+            cc_path = os.path.join(os.path.dirname(test_driver_file), "cpu.cc")
+            # copy the baseline file to the temp dir
+            with open(baseline_path, "r") as f:
+                baseline_content = f.read()
+            with open(os.path.join(tmpdir, "baseline.hpp"), "w") as f:
+                self.write_source(baseline_content, os.path.join(tmpdir, "baseline.hpp"), "baseline")
+            # copy the cpu.cc file to the temp dir
+            with open(cc_path, "r") as f:
+                cc_content = f.read()
+            with open(os.path.join(tmpdir, "cpu.cc"), "w") as f:
+                self.write_source(cc_content, os.path.join(tmpdir, "cpu.cc"))
+            
+            
             logging.debug(f"Wrote source to {src_path}.")
 
             # compile and run the output
@@ -168,7 +223,8 @@ class CppDriverWrapper(DriverWrapper):
             compiler_kwargs = copy.deepcopy(COMPILER_SETTINGS[self.parallelism_model])
             compiler_kwargs["problem_size"] = problem_size  # for kokkos
             compiler_kwargs["CXXFLAGS"] += f" -I{tmpdir} -DDRIVER_PROBLEM_SIZE=\"{problem_size}\""
-            build_result = self.compile(self.model_driver_file, test_driver_file, output_path=exec_path, **compiler_kwargs)
+            build_result = self.compile(tmpdir, self.model_driver_file, os.path.join(tmpdir, "cpu.cc"), output_path=exec_path, **compiler_kwargs)
+            # print(exec_path)
             if build_result.exit_code != 0:
                 print(f"----- DID NOT BUILD ---- build result stderr: {build_result.stderr}")
                 print("--- CODE FILE ---")
@@ -219,7 +275,6 @@ class CppDriverWrapper(DriverWrapper):
                 for run_result in run_results:
                     if run_result.exit_code != 0:
                         logging.debug(f"Ouputs:\n\tstdout: {run_result.stdout}\n\tstderr: {run_result.stderr}")
-        
         return GeneratedTextResult(write_success, build_result, run_results)
 
 # ---- Helper functions for parsing ----

@@ -29,7 +29,6 @@ void createRandomLinearSystem(std::vector<double> &A, std::vector<double> &b, st
     fillRand(x, -10.0, 10.0);
 
     std::fill(b.begin(), b.end(), 0.0);
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (size_t i = 0; i < N; i++) {
         for (size_t j = 0; j < N; j += 1) {
             b[i] += A[i * N + j] * x[j];
@@ -60,11 +59,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
+    generated::solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSolveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
+    baseline::solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -87,10 +86,10 @@ bool validate(Context *ctx) {
         BCAST(b, DOUBLE);
 
         // compute correct result
-        correctSolveLinearSystem(A, b, correct, TEST_SIZE);
+        baseline::solveLinearSystem(A, b, correct, TEST_SIZE);
 
         // compute test result
-        solveLinearSystem(A, b, test, TEST_SIZE);
+        generated::solveLinearSystem(A, b, test, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

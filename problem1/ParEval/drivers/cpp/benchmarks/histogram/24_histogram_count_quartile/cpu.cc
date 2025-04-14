@@ -42,11 +42,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    countQuartiles(ctx->x, ctx->bins);
+    generated::countQuartiles(ctx->x, ctx->bins);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctCountQuartiles(ctx->x, ctx->bins);
+    baseline::countQuartiles(ctx->x, ctx->bins);
 }
 
 bool validate(Context *ctx) {
@@ -67,10 +67,10 @@ bool validate(Context *ctx) {
         test.fill(0);
 
         // compute correct result
-        correctCountQuartiles(x, correct);
+        baseline::countQuartiles(x, correct);
 
         // compute test result
-        countQuartiles(x, test);
+        generated::countQuartiles(x, test);
         SYNC();
         
         bool isCorrect = true;

@@ -7,7 +7,7 @@
    input: [5, 1, 2, -4, 8]
    output: [25, 1, 4, 16, 64]
 */
-void NO_INLINE correctSquareEach(std::vector<int> &x) {
+void NO_INLINE squareEach(std::vector<int> &x) {
     for (size_t i = 0; i < x.size(); i++) {
         x[i] = x[i] * x[i];
     }

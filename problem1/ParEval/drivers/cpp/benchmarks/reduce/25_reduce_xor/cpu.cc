@@ -36,18 +36,9 @@ void bcastBools(std::vector<bool> &x) {
     #endif
 }
 
-/*
 void reset(Context *ctx) {
     for (int i = 0; i < ctx->x.size(); i += 1) {
         ctx->x[i] = rand() % 2;
-    }
-    bcastBools(ctx->x);
-}
-*/
-void reset(Context *ctx) {
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
-    for (int i = 0; i < ctx->x.size(); i += 1) {
-        ctx->x[i] = get_random_bit();
     }
     bcastBools(ctx->x);
 }
@@ -62,12 +53,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    bool out = reduceLogicalXOR(ctx->x);
+    bool out = generated::reduceLogicalXOR(ctx->x);
     (void) out;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    bool out = correctReduceLogicalXOR(ctx->x);
+    bool out = baseline::reduceLogicalXOR(ctx->x);
     (void) out;
 }
 
@@ -89,10 +80,10 @@ bool validate(Context *ctx) {
         bcastBools(x);
 
         // compute correct result
-        correct = correctReduceLogicalXOR(x);
+        correct = baseline::reduceLogicalXOR(x);
 
         // compute test result
-        test = reduceLogicalXOR(x);
+        test = generated::reduceLogicalXOR(x);
         SYNC();
 
         bool isCorrect = true;

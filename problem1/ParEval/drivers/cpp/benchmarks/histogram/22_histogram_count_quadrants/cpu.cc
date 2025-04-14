@@ -23,7 +23,8 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<Point> points;
+    std::vector<baseline::Point> points;
+    std::vector<generated::Point> points_test;
     std::array<size_t, 4> bins;
     std::vector<double> x, y;
 };
@@ -34,10 +35,11 @@ void reset(Context *ctx) {
     BCAST(ctx->x, DOUBLE);
     BCAST(ctx->y, DOUBLE);
 
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (int i = 0; i < ctx->points.size(); i += 1) {
         ctx->points[i].x = ctx->x[i];
         ctx->points[i].y = ctx->y[i];
+        ctx->points_test[i].x = ctx->x[i];
+        ctx->points_test[i].y = ctx->y[i];
     }
     ctx->bins.fill(0);
 }
@@ -46,6 +48,7 @@ Context *init() {
     Context *ctx = new Context();
 
     ctx->points.resize(DRIVER_PROBLEM_SIZE);
+    ctx->points_test.resize(DRIVER_PROBLEM_SIZE);
     ctx->x.resize(DRIVER_PROBLEM_SIZE);
     ctx->y.resize(DRIVER_PROBLEM_SIZE);
 
@@ -54,17 +57,18 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    countQuadrants(ctx->points, ctx->bins);
+    generated::countQuadrants(ctx->points_test, ctx->bins);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctCountQuadrants(ctx->points, ctx->bins);
+    baseline::countQuadrants(ctx->points, ctx->bins);
 }
 
 bool validate(Context *ctx) {
     const size_t TEST_SIZE = 1024;
 
-    std::vector<Point> points(TEST_SIZE);
+    std::vector<baseline::Point> points(TEST_SIZE);
+    std::vector<generated::Point> points_test(TEST_SIZE);
     std::array<size_t, 4> correct, test;
     std::vector<double> x(TEST_SIZE), y(TEST_SIZE);
 
@@ -82,15 +86,17 @@ bool validate(Context *ctx) {
         for (int j = 0; j < points.size(); j += 1) {
             points[j].x = x[j];
             points[j].y = y[j];
+            points_test[j].x = x[j];
+            points_test[j].y = y[j];
         }
         correct.fill(0);
         test.fill(0);
 
         // compute correct result
-        correctCountQuadrants(points, correct);
+        baseline::countQuadrants(points, correct);
 
         // compute test result
-        countQuadrants(points, test);
+        generated::countQuadrants(points_test, test);
         SYNC();
         
         bool isCorrect = true;

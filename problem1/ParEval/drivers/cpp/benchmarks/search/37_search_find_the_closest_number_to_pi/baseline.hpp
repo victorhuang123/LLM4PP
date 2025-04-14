@@ -8,7 +8,7 @@
    input: [9.18, 3.05, 7.24, 11.3, -166.49, 2.1]
    output: 1
 */
-size_t NO_INLINE correctFindClosestToPi(std::vector<double> const& x) {
+size_t NO_INLINE findClosestToPi(std::vector<double> const& x) {
    size_t index = 0;
    double min = std::abs(x[0] - M_PI);
    for (size_t i = 1; i < x.size(); ++i) {

@@ -29,7 +29,7 @@ extern "C++" {
 }
 
 int main(int argc, char **argv) {
-
+    
     /* initialize settings from arguments */
     if (argc > 2) {
         printf("Usage: %s <?niter>\n", argv[0]);

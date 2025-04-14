@@ -6,7 +6,7 @@
    input: [16, 11, 12, 14, 1, 0, 5]
    output: [8, -11, 6, 7, -1, 0, -5]
 */
-void NO_INLINE correctNegateOddsAndHalveEvens(std::vector<int> &x) {
+void NO_INLINE negateOddsAndHalveEvens(std::vector<int> &x) {
     std::transform(x.begin(), x.end(), x.begin(), [](int i) {
         if (i % 2 == 0) {
             return i / 2;

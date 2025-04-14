@@ -538,5 +538,113 @@
     "kokkos": "(1<<21)",
     "cuda": "(1<<21)",
     "hip": "(1<<21)"
+  },
+  "60_dense_la_gemv": {
+    "serial": "(1<<13)",
+    "omp": "(1<<13)",
+    "mpi": "(1<<13)",
+    "mpi+omp": "(1<<13)",
+    "kokkos": "(1<<13)",
+    "cuda": "(1<<13)",
+    "hip": "(1<<13)"
+   },
+  "61_fft_fft_out_of_place": {
+    "serial": "(1<<17)",
+    "omp": "(1<<17)",
+    "mpi": "(1<<17)",
+    "mpi+omp": "(1<<17)",
+    "kokkos": "(1<<17)",
+    "cuda": "(1<<17)",
+    "hip": "(1<<17)"
+  },
+  "62_geometry_closest_pair_1d": {
+    "serial": "(1<<14)",
+    "omp": "(1<<13)",
+    "mpi": "(1<<14)",
+    "mpi+omp": "(1<<14)",
+    "kokkos": "(1<<13)",
+    "cuda": "(1<<14)",
+    "hip": "(1<<14)"
+  },
+  "63_graph_floyd": {
+    "serial": "(1<<10)",
+    "omp": "(1<<10)",
+    "mpi": "(1<<10)",
+    "mpi+omp": "(1<<10)",
+    "kokkos": "(1<<10)",
+    "cuda": "(1<<10)",
+    "hip": "(1<<10)"
+  },
+  "64_histogram_count_quartile": {
+    "serial": "(1<<22)",
+    "omp": "(1<<22)",
+    "mpi": "(1<<22)",
+    "mpi+omp": "(1<<22)",
+    "kokkos": "(1<<22)",
+    "cuda": "(1<<22)",
+    "hip": "(1<<22)"
+  },
+  "65_reduce_sum_of_min_of_pairs": {
+    "serial": "(1<<24)",
+    "omp": "(1<<24)",
+    "mpi": "(1<<24)",
+    "mpi+omp": "(1<<24)",
+    "kokkos": "(1<<23)",
+    "cuda": "(1<<24)",
+    "hip": "(1<<24)"
+  },
+  "66_scan_longest_increaseing_subarray": {
+    "serial": "(1<<15)",
+    "omp": "(1<<15)",
+    "mpi": "(1<<15)",
+    "mpi+omp": "(1<<15)",
+    "kokkos": "(1<<15)",
+    "cuda": "(1<<15)",
+    "hip": "(1<<15)"
+  },
+  "67_search_xor_contains": {
+    "serial": "(1<<21)",
+    "omp": "(1<<21)",
+    "mpi": "(1<<21)",
+    "mpi+omp": "(1<<21)",
+    "kokkos": "(1<<21)",
+    "cuda": "(1<<21)",
+    "hip": "(1<<21)"
+  },
+  "68_sort_sort_non-zero_elements": {
+    "serial": "(1<<17)",
+    "omp": "(1<<17)",
+    "mpi": "(1<<17)",
+    "mpi+omp": "(1<<17)",
+    "kokkos": "(1<<17)",
+    "cuda": "(1<<17)",
+    "hip": "(1<<17)"
+  },
+  "69_sparse_la_sparse_lu_decomp": {
+    "serial": "(1<<9)",
+    "omp": "(1<<9)",
+    "mpi": "(1<<9)",
+    "mpi+omp": "(1<<9)",
+    "kokkos": "(1<<8)",
+    "cuda": "(1<<9)",
+    "hip": "(1<<9)"
+  },
+  "70_stencil_game_of_life": {
+    "serial": "(1<<12)",
+    "omp": "(1<<12)",
+    "mpi": "(1<<12)",
+    "mpi+omp": "(1<<12)",
+    "kokkos": "(1<<12)",
+    "cuda": "(1<<12)",
+    "hip": "(1<<12)"
+  },
+  "71_transform_map_function": {
+    "serial": "(1<<21)",
+    "omp": "(1<<21)",
+    "mpi": "(1<<21)",
+    "mpi+omp": "(1<<21)",
+    "kokkos": "(1<<21)",
+    "cuda": "(1<<21)",
+    "hip": "(1<<21)"
   }
 }

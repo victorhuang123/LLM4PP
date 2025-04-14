@@ -270,14 +270,6 @@ def main():
                 df.loc[(df["name"] == problem) & (df["parallelism_model"] == parallelism_model), "problem_size"] = parse_problem_size(problem_size)
 
     # remove rows where parallelism_model is kokkos and num_threads is 64
-    if "num_threads" not in df.columns:
-        df["num_threads"] = 1
-    else:
-        df["num_threads"] = 32
-
-    if "num_procs" not in df.columns:
-        df["num_procs"] = 1
-
     df = df[~((df["parallelism_model"] == "kokkos") & (df["num_threads"] == 64))]
 
     # filter/aggregate

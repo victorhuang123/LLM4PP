@@ -43,11 +43,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    axpy(ctx->alpha, ctx->x, ctx->y, ctx->z);
+    generated::axpy(ctx->alpha, ctx->x, ctx->y, ctx->z);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctAxpy(ctx->alpha, ctx->x, ctx->y, ctx->z);
+    baseline::axpy(ctx->alpha, ctx->x, ctx->y, ctx->z);
 }
 
 bool validate(Context *ctx) {
@@ -68,10 +68,10 @@ bool validate(Context *ctx) {
         BCAST(y, DOUBLE);
 
         // compute correct result
-        correctAxpy(alpha, x, y, correct);
+        baseline::axpy(alpha, x, y, correct);
 
         // compute test result
-        axpy(alpha, x, y, test);
+        generated::axpy(alpha, x, y, test);
         SYNC();
         
         bool isCorrect = true;

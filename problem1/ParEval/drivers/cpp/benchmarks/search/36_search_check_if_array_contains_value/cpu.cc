@@ -41,12 +41,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    size_t idx = contains(ctx->x, ctx->target);
+    size_t idx = generated::contains(ctx->x, ctx->target);
     (void)idx;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    size_t idx = correctContains(ctx->x, ctx->target);
+    size_t idx = baseline::contains(ctx->x, ctx->target);
     (void)idx;
 }
 
@@ -69,10 +69,10 @@ bool validate(Context *ctx) {
         BCAST_PTR(&target, 1, INT);
 
         // compute correct result
-        size_t correctIdx = correctContains(input, target);
+        size_t correctIdx = baseline::contains(input, target);
 
         // compute test result
-        size_t testIdx = contains(input, target);
+        size_t testIdx = generated::contains(input, target);
         SYNC();
         
         bool isCorrect = true;

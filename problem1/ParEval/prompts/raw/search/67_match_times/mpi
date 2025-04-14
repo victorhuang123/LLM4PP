@@ -1,0 +1,12 @@
+/* Return the total number of match times for `val` in vectors x and y.
+   Use MPI to search in parallel. Assume MPI has already been initialized.
+   Every rank has a complete copy of x and y. Return the result on rank 0.
+   Examples:
+
+   input: x=[1,8,4,3,2], y=[3,4,4,1,1,7], val=7
+   output: 1
+
+   input: x=[1,8,4,3,2], y=[3,4,4,1,1,7], val=1
+   output: 3
+*/
+int matchTimes(std::vector<int> const& x, std::vector<int> const& y, int val) {

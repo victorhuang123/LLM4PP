@@ -2,7 +2,7 @@
     {
         "problem_type": "scan",
         "language": "cpp",
-        "name": "28_scan_sum_of_prefix_sum_array",
+        "name": "32_scan_sum_of_prefix_sum_array",
         "parallelism_model": "serial",
         "prompt": "/* Compute the prefix sum array of the vector x and return its sum.\n   Example:\n\n   input: [-7, 2, 1, 9, 4, 8]\n   output: 15\n*/\ndouble sumOfPrefixSum(std::vector<double> const& x) {",
         "outputs": [
@@ -14,7 +14,7 @@
     {
         "problem_type": "transform",
         "language": "cpp",
-        "name": "53_transform_negate_odds",
+        "name": "56_transform_negate_odds",
         "parallelism_model": "serial",
         "prompt": "/* In the vector x negate the odd values and divide the even values by 2.\n   Example:\n\n   input: [16, 11, 12, 14, 1, 0, 5]\n   output: [8, -11, 6, 7, -1, 0, -5]\n*/\nvoid negateOddsAndHalveEvens(std::vector<int> &x) {",
         "outputs": [
@@ -26,7 +26,7 @@
     {
         "problem_type": "transform",
         "language": "cpp",
-        "name": "56_transform_map_function",
+        "name": "59_transform_map_function",
         "parallelism_model": "serial",
         "prompt": "bool isPowerOfTwo(int x) {\n\treturn (x > 0) && !(x & (x - 1));\n}\n\n/* Apply the isPowerOfTwo function to every value in x and store the results in mask.\n   Example:\n\n   input: [8, 0, 9, 7, 15, 64, 3]\n   output: [true, false, false, false, false, true, false]\n*/\nvoid mapPowersOfTwo(std::vector<int> const& x, std::vector<bool> &mask) {",
         "outputs": [
@@ -38,7 +38,7 @@
     {
         "problem_type": "transform",
         "language": "cpp",
-        "name": "55_transform_squaring",
+        "name": "58_transform_squaring",
         "parallelism_model": "serial",
         "prompt": "/* Replace every element of x with the square of its value.\n   Example:\n\n   input: [5, 1, 2, -4, 8]\n   output: [25, 1, 4, 16, 64]\n*/\nvoid squareEach(std::vector<int> &x) {",
         "outputs": [
@@ -50,7 +50,7 @@
     {
         "problem_type": "transform",
         "language": "cpp",
-        "name": "52_transform_relu",
+        "name": "55_transform_relu",
         "parallelism_model": "serial",
         "prompt": "/* Compute the ReLU function on every element of x. Elements less than zero become zero,\n   while elements greater than zero stay the same.\n   Example:\n\n   input: [-1.8, 24.0, 1.2, 0.0, -5.1, -0.2, 4.5]\n   output: [0, 24.0, 1.2, 0, 0, 0, 4.5]\n*/\nvoid relu(std::vector<double> &x) {",
         "outputs": [
@@ -62,7 +62,7 @@
     {
         "problem_type": "transform",
         "language": "cpp",
-        "name": "54_transform_inverse_offset",
+        "name": "57_transform_inverse_offset",
         "parallelism_model": "serial",
         "prompt": "/* Replace every element of the vector x with 1-1/x.\n   Example:\n\n   input: [2, 4, 1, 12, -2]\n   output: [0.5, 0.75, 0, 0.91666666, 1.5]\n*/\nvoid oneMinusInverse(std::vector<double> &x) {",
         "outputs": [
@@ -74,7 +74,7 @@
     {
         "problem_type": "sort",
         "language": "cpp",
-        "name": "41_sort_sort_non-zero_elements",
+        "name": "44_sort_sort_non-zero_elements",
         "parallelism_model": "serial",
         "prompt": "/* Sort the vector x in ascending order ignoring elements with value 0.\n   Leave zero valued elements in-place.\n   Example:\n\n\t input: [8, 4, 0, 9, 8, 0, 1, -1, 7]\n   output: [-1, 1, 0, 4, 7, 0, 8, 8, 9]\n*/\nvoid sortIgnoreZero(std::vector<int> &x) {",
         "outputs": [

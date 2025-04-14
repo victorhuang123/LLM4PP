@@ -29,7 +29,6 @@ void reset(Context *ctx) {
     BCAST(ctx->real, DOUBLE);
     BCAST(ctx->imag, DOUBLE);
     
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (size_t i = 0; i < ctx->x.size(); i += 1) {
         ctx->x[i] = std::complex<double>(ctx->real[i], ctx->imag[i]);
     }
@@ -47,11 +46,36 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    fft(ctx->x, ctx->real, ctx->imag);
+    generated::fft(ctx->x, ctx->real, ctx->imag);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctFft(ctx->x, ctx->real, ctx->imag);
+    baseline::fft(ctx->x, ctx->real, ctx->imag);
+}
+
+void fftCooleyTookey(std::vector<std::complex<double>> &x) {
+    const size_t N = x.size();
+    if (N <= 1) return;
+
+    // divide
+    std::vector<std::complex<double>> even = std::vector<std::complex<double>>(N/2);
+	std::vector<std::complex<double>> odd = std::vector<std::complex<double>>(N/2);
+
+	for (size_t j = 0; j < N/2; ++j) {
+		even[j] = x[j*2];
+		odd[j] = x[j*2+1];
+	}
+
+    // conquer
+    fftCooleyTookey(even);
+    fftCooleyTookey(odd);
+
+    // combine
+    for (size_t k = 0; k < N/2; ++k) {
+        std::complex<double> t = std::polar(1.0, -2 * M_PI * k / N) * odd[k];
+        x[k    ] = even[k] + t;
+        x[k+N/2] = even[k] - t;
+    }
 }
 
 bool validate(Context *ctx) {
@@ -86,7 +110,7 @@ bool validate(Context *ctx) {
         }
 
         // compute test result
-        fft(x, testReal, testImag);
+        generated::fft(x, testReal, testImag);
         SYNC();
         
         bool isCorrect = true;

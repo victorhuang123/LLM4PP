@@ -10,7 +10,7 @@
 //    input: x=[{5, 12}, {8, 3}, {12, -1}], y=[{3, 1}, {5, -2}, {7, 1}, {8, -3}], alpha=1
 //    output: z=[{3, 1}, {5, 10}, {7, 1}, {12, -1}]
 // */
-// void sparseAxpy(double alpha, std::vector<Element> const& x, std::vector<Element> const& y, std::vector<double> &z) {
+// void sparseAxpy(double alpha, std::vector<Element> const& x, std::vector<Element> const& y, std::vector<Element>& R) {
 
 #include <algorithm>
 #include <cmath>
@@ -25,9 +25,10 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<Element> x, y;
+    std::vector<baseline::Element> x, y, z;
+    std::vector<generated::Element> x_test, y_test, z_test;
     std::vector<size_t> xIndices, yIndices;
-    std::vector<double> xValues, yValues, z;
+    std::vector<double> xValues, yValues;
     double alpha;
     size_t N;
 };
@@ -45,14 +46,17 @@ void reset(Context *ctx) {
     BCAST(ctx->xValues, DOUBLE);
     BCAST(ctx->yValues, DOUBLE);
 
+
     for (int i = 0; i < ctx->xIndices.size(); i += 1) {
         ctx->x[i] = {ctx->xIndices[i], ctx->xValues[i]};
         ctx->y[i] = {ctx->yIndices[i], ctx->yValues[i]};
     }
-    std::sort(ctx->x.begin(), ctx->x.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
-    std::sort(ctx->y.begin(), ctx->y.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
-
-    std::fill(ctx->z.begin(), ctx->z.end(), 0.0);
+    std::sort(ctx->x.begin(), ctx->x.end(), [](const baseline::Element & a, const baseline::Element & b) { return a.index < b.index; });
+    std::sort(ctx->y.begin(), ctx->y.end(), [](const baseline::Element & a, const baseline::Element & b) { return a.index < b.index; });
+    for (int i = 0; i < ctx->xIndices.size(); i += 1) {
+        ctx->x_test[i] = {ctx->x[i].index, ctx->x[i].value};
+        ctx->y_test[i] = {ctx->y[i].index, ctx->y[i].value};
+    }
 }
 
 Context *init() {
@@ -62,33 +66,42 @@ Context *init() {
     const size_t nVals = ctx->N * SPARSE_LA_SPARSITY;
     ctx->x.resize(nVals);
     ctx->y.resize(nVals);
+    ctx->x_test.resize(nVals);
+    ctx->y_test.resize(nVals);
     ctx->xIndices.resize(nVals);
     ctx->yIndices.resize(nVals);
     ctx->xValues.resize(nVals);
     ctx->yValues.resize(nVals);
 
-    ctx->z.resize(ctx->N);
 
     reset(ctx);
     return ctx;
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    sparseAxpy(ctx->alpha, ctx->x, ctx->y, ctx->z);
+    generated::sparseAxpy(ctx->alpha, ctx->x_test, ctx->y_test, ctx->z_test);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSparseAxpy(ctx->alpha, ctx->x, ctx->y, ctx->z);
+    baseline::sparseAxpy(ctx->alpha, ctx->x, ctx->y, ctx->z);
 }
 
 bool validate(Context *ctx) {
-    const size_t TEST_SIZE = 1024;
+    const size_t TEST_SIZE = (1<<21);
     const size_t nVals = TEST_SIZE * SPARSE_LA_SPARSITY;
 
-    std::vector<Element> x(nVals), y(nVals);
-    std::vector<double> correct(TEST_SIZE), test(TEST_SIZE);
+    printf("nVals: %d\n", nVals);
+    std::vector<baseline::Element> x, y;
+    std::vector<generated::Element> x_test, y_test;
+    std::vector<baseline::Element> correct;
+    std::vector<generated::Element> test;
+//    std::vector<double> correct(TEST_SIZE), test(TEST_SIZE);
     std::vector<size_t> xIndices(nVals), yIndices(nVals);
     std::vector<double> xValues(nVals), yValues(nVals);
+    x.resize(nVals);
+    y.resize(nVals);
+    x_test.resize(nVals);
+    y_test.resize(nVals);
 
     int rank;
     GET_RANK(rank);
@@ -112,22 +125,34 @@ bool validate(Context *ctx) {
             x[i] = {xIndices[i], xValues[i]};
             y[i] = {yIndices[i], yValues[i]};
         }
-        std::sort(x.begin(), x.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
-        std::sort(y.begin(), y.end(), [](Element const& a, Element const& b) { return a.index < b.index; });
 
-        std::fill(correct.begin(), correct.end(), 0.0);
-        std::fill(test.begin(), test.end(), 0.0);
+        std::sort(x.begin(), x.end(), [](const baseline::Element & a, const baseline::Element & b) { return a.index < b.index; });
+        std::sort(y.begin(), y.end(), [](const baseline::Element & a, const baseline::Element & b) { return a.index < b.index; });
 
+        for (int i = 0; i < xIndices.size(); i += 1) {
+            x_test[i] = {x[i].index, x[i].value};
+            y_test[i] = {y[i].index, y[i].value};
+        }
         // compute correct result
-        correctSparseAxpy(alpha, x, y, correct);
+        baseline::sparseAxpy(alpha, x, y, correct);
 
         // compute test result
-        // test.clear();
-        sparseAxpy(alpha, x, y, test);
+        generated::sparseAxpy(alpha, x_test, y_test, test);
         SYNC();
-        
+
+	    int equal=true;
+
+        if(test.size()==correct.size()) {
+            for(int i=0;i<test.size();i++) {
+                if(test[i].index!=correct[i].index)	equal=false;
+                if(std::abs(test[i].value-correct[i].value)>1e-4)	equal=false;
+            }
+        } else {
+            equal = false;
+        }
+
         bool isCorrect = true;
-        if (IS_ROOT(rank) && !fequal(correct, test, 1e-4)) {
+        if (IS_ROOT(rank) && !equal) {
             isCorrect = false;
         }
         BCAST_PTR(&isCorrect, 1, CXX_BOOL);

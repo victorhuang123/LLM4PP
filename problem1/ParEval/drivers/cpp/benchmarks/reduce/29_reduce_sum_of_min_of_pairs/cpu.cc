@@ -40,12 +40,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    double val = sumOfMinimumElements(ctx->x, ctx->y);
+    double val = generated::sumOfMinimumElements(ctx->x, ctx->y);
     (void)val;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    double val = correctSumOfMinimumElements(ctx->x, ctx->y);
+    double val = baseline::sumOfMinimumElements(ctx->x, ctx->y);
     (void)val;
 }
 
@@ -67,10 +67,10 @@ bool validate(Context *ctx) {
         BCAST(y, DOUBLE);
 
         // compute correct result
-        correct = correctSumOfMinimumElements(x, y);
+        correct = baseline::sumOfMinimumElements(x, y);
 
         // compute test result
-        test = sumOfMinimumElements(x, y);
+        test = generated::sumOfMinimumElements(x, y);
         SYNC();
 
         bool isCorrect = true;

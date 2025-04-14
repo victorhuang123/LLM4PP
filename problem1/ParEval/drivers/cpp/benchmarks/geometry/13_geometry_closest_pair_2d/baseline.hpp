@@ -2,13 +2,16 @@
 #include <vector>
 #include <limits>
 
+struct Point {
+    double x, y;
+};
 /* Return the distance between the closest two points in the vector points.
    Example:
 
    input: [{2, 3}, {12, 30}, {40, 50}, {5, 1}, {12, 10}, {3, 4}]
    output: 1.41421
 */
-double NO_INLINE correctClosestPair(std::vector<Point> const& points) {
+double NO_INLINE closestPair(std::vector<Point> const& points) {
     // The polygon needs to have at least two points
     if (points.size() < 2)   {
         return 0;

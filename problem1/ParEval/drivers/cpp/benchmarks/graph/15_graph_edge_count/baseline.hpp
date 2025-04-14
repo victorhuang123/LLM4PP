@@ -12,7 +12,7 @@
 	 input: [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [1, 1, 1, 0]]
    output: 3
 */
-int NO_INLINE correctEdgeCount(std::vector<int> const& A, size_t N) {
+int NO_INLINE edgeCount(std::vector<int> const& A, size_t N) {
    int count = 0;
    for (int i = 0; i < N; i += 1) {
       for (int j = 0; j < N; j += 1) {

@@ -8,7 +8,7 @@
    input: [7, 3, 9, 12, 31, 1]
    output: 2
 */
-double NO_INLINE correctClosestPair(std::vector<double> const& x) {
+double NO_INLINE closestPair(std::vector<double> const& x) {
     // The vector needs to have at least two elements
     if (x.size() < 2)   {
         return 0;

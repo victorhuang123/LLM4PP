@@ -30,7 +30,6 @@ optional arguments:
   --batch_size BATCH_SIZE
                         Batch size for generation (default: 8)
   --prompted            Use prompted generation. See StarCoder paper (default: False)
-  --code_opt            Set to True if doing the code optimization task and False for the code completion task.
 ```
 
 To get outputs in a reasonable amount of time you will most likely need to run
@@ -53,18 +52,7 @@ different models. These are defined in `utils.py`. To add support for a new LLM
 you will need to define an inference config for that LLM in `utils.py`. The
 existing examples in that file should suffice as examples.
 
-We have an example called `SpeedcodeConfig` as an example we used when doing inference.
-
 ## Translate Tests
 
 Each of the generate scripts has a translation equivalent. These are used for
 the translation tasks.
-
-## Prompts
-The prompts are stored in the prompts directory. There are three prompts to use for the competition.
-The prompts for code completion are taken directly from ParEval and cannot be changed. 
-The prompts for code optimization are written by us and thus there is some flexibility in the prompts used for that task.
-
-* `serial-generation-prompts.json` is used for Serial code completion.
-* `omp-generation-prompts.json` is used for OMP code completion.
-* `code_opt.json` is used for code optimization.

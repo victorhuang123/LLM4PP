@@ -29,12 +29,14 @@ struct Context {
     std::vector<size_t> X_rows, X_columns, A_rows, A_columns;
     std::vector<double> X_values, A_values;
     std::vector<double> Y;
-    std::vector<COOElement> X, A;
+    std::vector<baseline::COOElement> X, A;
+    std::vector<generated::COOElement> X_test, A_test;
     size_t M, K, N;
 };
 
-void sortCOOElements(std::vector<COOElement> &vec) {
-    std::sort(vec.begin(), vec.end(), [](const COOElement &a, const COOElement &b) {
+template <typename T>
+void sortCOOElements(std::vector<T> &vec) {
+    std::sort(vec.begin(), vec.end(), [](const T &a, const T &b) {
         return (a.row == b.row) ? (a.column < b.column) : (a.row < b.row);
     });
 }
@@ -66,6 +68,13 @@ void reset(Context *ctx) {
         ctx->A.push_back({ctx->A_rows[i], ctx->A_columns[i], ctx->A_values[i]});
     }
     sortCOOElements(ctx->A);
+
+    for (int i = 0; i < ctx->X.size(); i += 1) {
+        ctx->X_test.push_back({ctx->X[i].row, ctx->X[i].column, ctx->X[i].value});
+    }
+    for (int i = 0; i < ctx->A.size(); i += 1) {
+        ctx->A_test.push_back({ctx->A[i].row, ctx->A[i].column, ctx->A[i].value});
+    }
 }
 
 Context *init() {
@@ -78,11 +87,13 @@ Context *init() {
     const size_t nVals_X = ctx->K * ctx->N * SPARSE_LA_SPARSITY;
 
     ctx->A.resize(nVals_A);
+    ctx->A_test.resize(nVals_A);
     ctx->A_rows.resize(nVals_A);
     ctx->A_columns.resize(nVals_A);
     ctx->A_values.resize(nVals_A);
 
     ctx->X.resize(nVals_X);
+    ctx->X_test.resize(nVals_X);
     ctx->X_rows.resize(nVals_X);
     ctx->X_columns.resize(nVals_X);
     ctx->X_values.resize(nVals_X);
@@ -94,11 +105,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    spmm(ctx->A, ctx->X, ctx->Y, ctx->M, ctx->K, ctx->N);
+    generated::spmm(ctx->A_test, ctx->X_test, ctx->Y, ctx->M, ctx->K, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSpmm(ctx->A, ctx->X, ctx->Y, ctx->M, ctx->K, ctx->N);
+    baseline::spmm(ctx->A, ctx->X, ctx->Y, ctx->M, ctx->K, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -109,7 +120,8 @@ bool validate(Context *ctx) {
     std::vector<size_t> X_rows(nVals_X), X_columns(nVals_X), A_rows(nVals_A), A_columns(nVals_A);
     std::vector<double> X_values(nVals_X), A_values(nVals_A);
 
-    std::vector<COOElement> X(nVals_X), A(nVals_A);
+    std::vector<baseline::COOElement> X(nVals_X), A(nVals_A);
+    std::vector<generated::COOElement> X_test(nVals_X), A_test(nVals_A);
     std::vector<double> correctY(TEST_SIZE * TEST_SIZE), testY(TEST_SIZE * TEST_SIZE);
 
     int rank;
@@ -145,12 +157,18 @@ bool validate(Context *ctx) {
             A[i] = {A_rows[i], A_columns[i], A_values[i]};
         }
         sortCOOElements(A);
+        for (int i = 0; i < X.size(); i += 1) {
+            X_test[i] = {X[i].row, X[i].column, X[i].value};
+        }
+        for (int i = 0; i < A.size(); i += 1) {
+            A_test[i] = {A[i].row, A[i].column, A[i].value};
+        }
 
         // compute correct result
-        correctSpmm(A, X, correctY, TEST_SIZE, TEST_SIZE, TEST_SIZE);
+        baseline::spmm(A, X, correctY, TEST_SIZE, TEST_SIZE, TEST_SIZE);
 
         // compute test result
-        spmm(A, X, testY, TEST_SIZE, TEST_SIZE, TEST_SIZE);
+        generated::spmm(A_test, X_test, testY, TEST_SIZE, TEST_SIZE, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

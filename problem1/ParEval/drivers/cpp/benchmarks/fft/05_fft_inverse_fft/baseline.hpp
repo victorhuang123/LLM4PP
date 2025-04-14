@@ -7,9 +7,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-/* fft. computes fourier transform in-place
-   from https://rosettacode.org/wiki/Fast_Fourier_transform#C++
-*/
+// fft. computes fourier transform in-place from https://rosettacode.org/wiki/Fast_Fourier_transform#C++
 void fft(std::vector<std::complex<double>> &x) {
    // DFT
 	unsigned int N = x.size(), k = N, n;
@@ -58,7 +56,7 @@ void fft(std::vector<std::complex<double>> &x) {
    input: [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
    output: [{0.5,0}, {0.125,0.301777}, {0,-0}, {0.125,0.0517767}, {0,-0}, {0.125,-0.0517767}, {0,-0}, {0.125,-0.301777}]
 */
-void NO_INLINE correctIfft(std::vector<std::complex<double>> &x) {
+void NO_INLINE ifft(std::vector<std::complex<double>> &x) {
    // conjugate the complex numbers
    std::transform(x.begin(), x.end(), x.begin(), [](auto const& val) { return std::conj(val); });
 

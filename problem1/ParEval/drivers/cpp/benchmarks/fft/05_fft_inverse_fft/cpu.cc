@@ -33,7 +33,6 @@ void reset(Context *ctx) {
     BCAST(ctx->real, DOUBLE);
     BCAST(ctx->imag, DOUBLE);
 
-    #pragma omp parallel for num_threads(NUM_THREADS_SETUP)
     for (int i = 0; i < ctx->x.size(); i += 1) {
         ctx->x[i] = std::complex<double>(ctx->real[i], ctx->imag[i]);
     }
@@ -51,11 +50,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    ifft(ctx->x);
+    generated::ifft(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctIfft(ctx->x);
+    baseline::ifft(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -81,11 +80,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<std::complex<double>> correct = x;
-        correctIfft(correct);
+        baseline::ifft(correct);
 
         // compute test result
         std::vector<std::complex<double>> test = x;
-        ifft(test);
+        generated::ifft(test);
         SYNC();
         
         bool isCorrect = true;

@@ -35,11 +35,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    oneMinusInverse(ctx->x);
+    generated::oneMinusInverse(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctOneMinusInverse(ctx->x);
+    baseline::oneMinusInverse(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -55,11 +55,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<double> correctResult = input;
-        correctOneMinusInverse(correctResult);
+        baseline::oneMinusInverse(correctResult);
 
         // compute test result
         std::vector<double> testResult = input;
-        oneMinusInverse(testResult);
+        generated::oneMinusInverse(testResult);
         SYNC();
         
         bool isCorrect = true;

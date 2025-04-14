@@ -23,7 +23,8 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<Result> results;
+    std::vector<baseline::Result> results;
+    std::vector<generated::Result> results_test;
     std::vector<int> startTime, duration;
     std::vector<float> value;
 };
@@ -41,6 +42,9 @@ void reset(Context *ctx) {
         ctx->results[i].startTime = ctx->startTime[i];
         ctx->results[i].duration = ctx->duration[i];
         ctx->results[i].value = ctx->value[i];
+        ctx->results_test[i].startTime = ctx->startTime[i];
+        ctx->results_test[i].duration = ctx->duration[i];
+        ctx->results_test[i].value = ctx->value[i];
     }
 }
 
@@ -48,6 +52,7 @@ Context *init() {
     Context *ctx = new Context();
 
     ctx->results.resize(DRIVER_PROBLEM_SIZE);
+    ctx->results_test.resize(DRIVER_PROBLEM_SIZE);
     ctx->startTime.resize(DRIVER_PROBLEM_SIZE);
     ctx->duration.resize(DRIVER_PROBLEM_SIZE);
     ctx->value.resize(DRIVER_PROBLEM_SIZE);
@@ -57,17 +62,18 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    sortByStartTime(ctx->results);
+    generated::sortByStartTime(ctx->results_test);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSortByStartTime(ctx->results);
+    baseline::sortByStartTime(ctx->results);
 }
 
 bool validate(Context *ctx) {
     const size_t TEST_SIZE = 1024;
 
-    std::vector<Result> correct(TEST_SIZE), test(TEST_SIZE);
+    std::vector<baseline::Result> correct(TEST_SIZE);
+    std::vector<generated::Result> test(TEST_SIZE);
     std::vector<int> startTime(TEST_SIZE), duration(TEST_SIZE);
     std::vector<float> value(TEST_SIZE);
 
@@ -96,10 +102,10 @@ bool validate(Context *ctx) {
         }
 
         // compute correct result
-        correctSortByStartTime(correct);
+        baseline::sortByStartTime(correct);
 
         // compute test result
-        sortByStartTime(test);
+        generated::sortByStartTime(test);
         SYNC();
         
         bool isCorrect = true;

@@ -1,0 +1,11 @@
+/* Return the total number of match times for `val` in vectors x and y.
+   Use CUDA to search in parallel. The kernel is launched with at least N threads.
+   Examples:
+
+   input: x=[1,8,4,3,2], y=[3,4,4,1,1,7], val=7
+   output: 1
+
+   input: x=[1,8,4,3,2], y=[3,4,4,1,1,7], val=1
+   output: 3
+*/
+__global__ void matchTimes(const int *x, size_t N, const int *y, size_t M, int val, int& ret) {
