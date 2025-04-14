@@ -1,6 +1,6 @@
-CXX = g++-14
+CXX = g++
 MPICXX = mpicxx
-CXX_FLAGS = -std=c++20 -O3
+CXX_FLAGS = -std=c++17 -O3
 
 SERIAL_DRIVERS = $(patsubst %.cc,%.o, $(wildcard */*serial-driver.cc))
 OMP_DRIVERS = $(patsubst %.cc,%.o, $(wildcard */omp-driver.cc))
