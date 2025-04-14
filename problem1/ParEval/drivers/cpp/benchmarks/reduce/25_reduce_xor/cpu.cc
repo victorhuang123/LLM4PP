@@ -53,12 +53,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    bool out = reduceLogicalXOR(ctx->x);
+    bool out = generated::reduceLogicalXOR(ctx->x);
     (void) out;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    bool out = correctReduceLogicalXOR(ctx->x);
+    bool out = baseline::reduceLogicalXOR(ctx->x);
     (void) out;
 }
 
@@ -80,10 +80,10 @@ bool validate(Context *ctx) {
         bcastBools(x);
 
         // compute correct result
-        correct = correctReduceLogicalXOR(x);
+        correct = baseline::reduceLogicalXOR(x);
 
         // compute test result
-        test = reduceLogicalXOR(x);
+        test = generated::reduceLogicalXOR(x);
         SYNC();
 
         bool isCorrect = true;

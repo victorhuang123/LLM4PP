@@ -34,11 +34,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    negateOddsAndHalveEvens(ctx->x);
+    generated::negateOddsAndHalveEvens(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctNegateOddsAndHalveEvens(ctx->x);
+    baseline::negateOddsAndHalveEvens(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -54,11 +54,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<int> correctResult = input;
-        correctNegateOddsAndHalveEvens(correctResult);
+        baseline::negateOddsAndHalveEvens(correctResult);
 
         // compute test result
         std::vector<int> testResult = input;
-        negateOddsAndHalveEvens(testResult);
+        generated::negateOddsAndHalveEvens(testResult);
         SYNC();
         
         bool isCorrect = true;

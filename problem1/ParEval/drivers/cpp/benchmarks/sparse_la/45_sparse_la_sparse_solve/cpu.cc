@@ -27,18 +27,21 @@ struct Context {
     std::vector<size_t> A_rows, A_columns;
     std::vector<double> A_values;
 
-    std::vector<COOElement> A;
+    std::vector<baseline::COOElement> A;
+    std::vector<generated::COOElement> A_test;
     std::vector<double> b, x;
     size_t N;
 };
 
-void sortCOOElements(std::vector<COOElement> &vec) {
-    std::sort(vec.begin(), vec.end(), [](const COOElement &a, const COOElement &b) {
+template <typename T>
+void sortCOOElements(std::vector<T> &vec) {
+    std::sort(vec.begin(), vec.end(), [](const T &a, const T &b) {
         return (a.row == b.row) ? (a.column < b.column) : (a.row < b.row);
     });
 }
 
-void createRandomLinearSystem(std::vector<COOElement> &A, std::vector<size_t> &A_rows, std::vector<size_t> &A_columns, 
+template <typename T>
+void createRandomLinearSystem(std::vector<T> &A, std::vector<size_t> &A_rows, std::vector<size_t> &A_columns, 
     std::vector<double> &A_values, std::vector<double> &b, std::vector<double> &x, size_t N) {
     
     fillRand(A_rows, 0UL, N);
@@ -67,6 +70,9 @@ void createRandomLinearSystem(std::vector<COOElement> &A, std::vector<size_t> &A
 
 void reset(Context *ctx) {
     createRandomLinearSystem(ctx->A, ctx->A_rows, ctx->A_columns, ctx->A_values, ctx->b, ctx->x, ctx->N);
+    for (int i = 0; i < ctx->A.size(); i += 1) {
+        ctx->A_test[i] = {ctx->A[i].row, ctx->A[i].column, ctx->A[i].value};
+    }
 }
 
 Context *init() {
@@ -79,6 +85,7 @@ Context *init() {
     ctx->A_columns.resize(nVals);
     ctx->A_values.resize(nVals);
     ctx->A.resize(nVals);
+    ctx->A_test.resize(nVals);
 
     ctx->b.resize(ctx->N);
     ctx->x.resize(ctx->N);
@@ -88,11 +95,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
+    generated::solveLinearSystem(ctx->A_test, ctx->b, ctx->x, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSolveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
+    baseline::solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -101,8 +108,8 @@ bool validate(Context *ctx) {
 
     std::vector<size_t> A_rows(nVals), A_columns(nVals);
     std::vector<double> A_values(nVals), b(TEST_SIZE), x_correct(TEST_SIZE), x_test(TEST_SIZE);
-    std::vector<COOElement> A(nVals);
-
+    std::vector<baseline::COOElement> A(nVals);
+    std::vector<generated::COOElement> A_test(nVals);
     int rank;
     GET_RANK(rank);
 
@@ -110,13 +117,16 @@ bool validate(Context *ctx) {
     for (int trialIter = 0; trialIter < numTries; trialIter += 1) {
         // set up input
         createRandomLinearSystem(A, A_rows, A_columns, A_values, b, x_correct, TEST_SIZE);
+        for (int i = 0; i < A_rows.size(); i += 1) {
+            A_test[i] = {A[i].row, A[i].column, A[i].value};
+        }
         std::fill(x_test.begin(), x_test.end(), 0.0);
 
         // compute correct result
-        correctSolveLinearSystem(A, b, x_correct, TEST_SIZE);
+        baseline::solveLinearSystem(A, b, x_correct, TEST_SIZE);
 
         // compute test result
-        solveLinearSystem(A, b, x_test, TEST_SIZE);
+        generated::solveLinearSystem(A_test, b, x_test, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

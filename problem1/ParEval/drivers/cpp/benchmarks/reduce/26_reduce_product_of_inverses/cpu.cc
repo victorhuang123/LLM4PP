@@ -37,12 +37,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    double val = productWithInverses(ctx->x);
+    double val = generated::productWithInverses(ctx->x);
     (void)val;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    double val = correctProductWithInverses(ctx->x);
+    double val = baseline::productWithInverses(ctx->x);
     (void)val;
 }
 
@@ -62,10 +62,10 @@ bool validate(Context *ctx) {
         BCAST(x, DOUBLE);
 
         // compute correct result
-        correct = correctProductWithInverses(x);
+        correct = baseline::productWithInverses(x);
 
         // compute test result
-        test = productWithInverses(x);
+        test = generated::productWithInverses(x);
         SYNC();
 
         bool isCorrect = true;

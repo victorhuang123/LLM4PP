@@ -45,11 +45,36 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    fftConjugate(ctx->x);
+    generated::fft(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctFft(ctx->x);
+    baseline::fft(ctx->x);
+}
+
+void fftCooleyTookey(std::vector<std::complex<double>>& x) {
+    const size_t N = x.size();
+    if (N <= 1) return;
+
+    // divide
+    std::vector<std::complex<double>> even = std::vector<std::complex<double>>(N/2);
+	std::vector<std::complex<double>> odd = std::vector<std::complex<double>>(N/2);
+
+	for (size_t i = 0; i < N/2; ++i) {
+		even[i] = x[i*2];
+		odd[i] = x[i*2+1];
+	}
+
+    // conquer
+    fftCooleyTookey(even);
+    fftCooleyTookey(odd);
+
+    // combine
+    for (size_t k = 0; k < N/2; ++k) {
+        std::complex<double> t = std::polar(1.0, -2 * M_PI * k / N) * odd[k];
+        x[k    ] = even[k] + t;
+        x[k+N/2] = even[k] - t;
+    }
 }
 
 bool validate(Context *ctx) {
@@ -71,23 +96,26 @@ bool validate(Context *ctx) {
 
         for (size_t j = 0; j < x.size(); j += 1) {
             x[j] = std::complex<double>(real[j], imag[j]);
-//             std::cout << j << x[j] << '\n';
-//             std::cout << j << y[j] << '\n';
+            // std::cout << j << x[j] << '\n';
+            // std::cout << j << y[j] << '\n';
         }
 
         // compute correct result
         std::vector<std::complex<double>> correct = x;
-        correctFft(correct);
+        fftCooleyTookey(correct);
+        for (size_t j = 0; j < correct.size(); j += 1) {
+            correct[j] = std::conj(correct[j]);
+        }
 
         // compute test result
         std::vector<std::complex<double>> test = x;
-        fftConjugate(test);
+        generated::fft(test);
         SYNC();
        
 
         for (size_t j = 0; j < TEST_SIZE; j += 1) {
-//             std::cout << "correct" << correct[j] << '\t';
-//             std::cout << "test" << test[j] << '\n';
+            // std::cout << "correct" << correct[j] << '\t';
+            // std::cout << "test" << test[j] << '\n';
         }
 
         bool isCorrect = true;

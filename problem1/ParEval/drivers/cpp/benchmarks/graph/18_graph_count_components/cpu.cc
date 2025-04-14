@@ -50,12 +50,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int cc = componentCount(ctx->A, ctx->N);
+    int cc = generated::componentCount(ctx->A, ctx->N);
     (void)cc;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int cc = correctComponentCount(ctx->A, ctx->N);
+    int cc = baseline::componentCount(ctx->A, ctx->N);
     (void)cc;
 }
 
@@ -74,10 +74,10 @@ bool validate(Context *ctx) {
         BCAST(A, INT);
 
         // compute correct result
-        int correct = correctComponentCount(A, TEST_SIZE);
+        int correct = baseline::componentCount(A, TEST_SIZE);
 
         // compute test result
-        int test = componentCount(A, TEST_SIZE);
+        int test = generated::componentCount(A, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

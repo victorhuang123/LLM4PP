@@ -38,12 +38,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int val = maximumSubarray(ctx->x);
+    int val = generated::maximumSubarray(ctx->x);
     (void) val;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int val = correctMaximumSubarray(ctx->x);
+    int val = baseline::maximumSubarray(ctx->x);
     (void) val;
 }
 
@@ -62,10 +62,10 @@ bool validate(Context *ctx) {
         BCAST(x, INT);
 
         // compute correct result
-        int correct = correctMaximumSubarray(x);
+        int correct = baseline::maximumSubarray(x);
 
         // compute test result
-        int test = maximumSubarray(x);
+        int test = generated::maximumSubarray(x);
         SYNC();
 
         bool isCorrect = true;

@@ -35,12 +35,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    double val = sumOfPrefixSum(ctx->x);
+    double val = generated::sumOfPrefixSum(ctx->x);
     (void) val;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    double val = correctSumOfPrefixSum(ctx->x);
+    double val = baseline::sumOfPrefixSum(ctx->x);
     (void) val;
 }
 
@@ -59,10 +59,10 @@ bool validate(Context *ctx) {
         BCAST(input, DOUBLE);
 
         // compute correct result
-        double correctResult = correctSumOfPrefixSum(input);
+        double correctResult = baseline::sumOfPrefixSum(input);
 
         // compute test result
-        double testResult = sumOfPrefixSum(input);
+        double testResult = generated::sumOfPrefixSum(input);
         SYNC();
 
         bool isCorrect = true;

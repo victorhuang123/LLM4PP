@@ -14,7 +14,7 @@ using floyd algorithm.
    input: [[0, 1, 1, 0], [1, 0, 0, 1], [1, 0, 0, 1], [0, 1, 1, 0]]
    output: [[0, 1, 1, 2], [1, 0, 2, 1], [1, 2, 0, 1], [2, 1, 1, 0]]
 */
-void NO_INLINE correctFloyd(std::vector<int> const& A, size_t N, std::vector<int>& R) {
+void NO_INLINE floyd(std::vector<int> const& A, size_t N, std::vector<int>& R) {
     R = A;
    for(int k=0; k<N; k++) {
        for(int i=0; i<N; i++) {

@@ -46,11 +46,36 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    fft(ctx->x, ctx->output);
+    generated::fft(ctx->x, ctx->output);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctFft(ctx->x, ctx->output);
+    baseline::fft(ctx->x, ctx->output);
+}
+
+void fftCooleyTookey(std::vector<std::complex<double>> &x) {
+    const size_t N = x.size();
+    if (N <= 1) return;
+
+    // divide
+    std::vector<std::complex<double>> even = std::vector<std::complex<double>>(N/2);
+	std::vector<std::complex<double>> odd = std::vector<std::complex<double>>(N/2);
+
+	for (size_t j = 0; j < N/2; ++j) {
+		even[j] = x[j*2];
+		odd[j] = x[j*2+1];
+	}
+
+    // conquer
+    fftCooleyTookey(even);
+    fftCooleyTookey(odd);
+
+    // combine
+    for (size_t k = 0; k < N/2; ++k) {
+        std::complex<double> t = std::polar(1.0, -2 * M_PI * k / N) * odd[k];
+        x[k    ] = even[k] + t;
+        x[k+N/2] = even[k] - t;
+    }
 }
 
 bool validate(Context *ctx) {
@@ -72,14 +97,16 @@ bool validate(Context *ctx) {
 
         for (size_t j = 0; j < x.size(); j += 1) {
             x[j] = std::complex<double>(real[j], imag[j]);
+            correct[j] = std::complex<double>(real[j], imag[j]);
         }
 
         // compute correct result
         // correct = x;
-        correctFft(x, correct);
+        // baseline::fft(x, correct);
+        fftCooleyTookey(correct);
 
         // compute test result
-        fft(x, test);
+        generated::fft(x, test);
         SYNC();
         
         bool isCorrect = true;

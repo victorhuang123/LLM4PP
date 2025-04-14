@@ -27,7 +27,9 @@ struct Context {
 void randomConnectedUndirectedGraph(std::vector<int> &A, size_t N) {
     std::vector<int> nodes(N);
     std::iota(nodes.begin(), nodes.end(), 0);
-    std::random_shuffle(nodes.begin(), nodes.end());
+    std::random_device rd;
+    std::mt19937 g(rd()); 
+    std::shuffle(nodes.begin(), nodes.end(), g);
 
     for (int i = 0; i < N-1; i += 1) {
         A[nodes[i] * N + nodes[i+1]] = 1;
@@ -70,12 +72,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int sp = shortestPathLength(ctx->A, ctx->N, ctx->source, ctx->dest);
+    int sp = generated::shortestPathLength(ctx->A, ctx->N, ctx->source, ctx->dest);
     (void)sp;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int sp = correctShortestPathLength(ctx->A, ctx->N, ctx->source, ctx->dest);
+    int sp = baseline::shortestPathLength(ctx->A, ctx->N, ctx->source, ctx->dest);
     (void)sp;
 }
 
@@ -102,10 +104,10 @@ bool validate(Context *ctx) {
         BCAST_PTR(&dest, 1, INT);
 
         // compute correct result
-        int correct = correctShortestPathLength(A, TEST_SIZE, source, dest);
+        int correct = baseline::shortestPathLength(A, TEST_SIZE, source, dest);
 
         // compute test result
-        int test = shortestPathLength(A, TEST_SIZE, source, dest);
+        int test = generated::shortestPathLength(A, TEST_SIZE, source, dest);
         SYNC();
 
         // normalize "not-found" results

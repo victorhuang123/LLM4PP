@@ -41,11 +41,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    firstLetterCounts(ctx->s, ctx->bins);
+    generated::firstLetterCounts(ctx->s, ctx->bins);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctFirstLetterCounts(ctx->s, ctx->bins);
+    baseline::firstLetterCounts(ctx->s, ctx->bins);
 }
 
 bool validate(Context *ctx) {
@@ -74,10 +74,10 @@ bool validate(Context *ctx) {
         test.fill(0);
 
         // compute correct result
-        correctFirstLetterCounts(s, correct);
+        baseline::firstLetterCounts(s, correct);
 
         // compute test result
-        firstLetterCounts(s, test);
+        generated::firstLetterCounts(s, test);
         SYNC();
         
         bool isCorrect = true;

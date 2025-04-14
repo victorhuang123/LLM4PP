@@ -40,12 +40,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    double distance = farestPair(ctx->x);
+    double distance = generated::farestPair(ctx->x);
     (void)distance;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    double distance = correctFarestPair(ctx->x);
+    double distance = baseline::farestPair(ctx->x);
     (void)distance;
 }
 
@@ -67,10 +67,10 @@ bool validate(Context *ctx) {
         BCAST(x, DOUBLE);
 
         // compute correct result
-        correct = correctFarestPair(x);
+        correct = baseline::farestPair(x);
 
         // compute test result
-        test = farestPair(x);
+        test = generated::farestPair(x);
         SYNC();
 
         bool isCorrect = true;

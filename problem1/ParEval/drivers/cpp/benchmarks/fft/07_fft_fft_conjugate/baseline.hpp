@@ -9,7 +9,7 @@
    input: [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
    output: [{4,0}, {1,-2.41421}, {0,0}, {1,-0.414214}, {0,0}, {1,0.414214}, {0,0}, {1,2.41421}]
 */
-void NO_INLINE correctFft(std::vector<std::complex<double>> &x) {
+void NO_INLINE fft(std::vector<std::complex<double>> &x) {
 	// DFT
 	unsigned int N = x.size(), k = N, n;
 	double thetaT = 3.14159265358979323846264338328L / N;
@@ -53,42 +53,6 @@ void NO_INLINE correctFft(std::vector<std::complex<double>> &x) {
 		x[i] = std::conj(x[i]);
 	}
 }
-
-#ifndef SHAPE_CPP
-#define SHAPE_CPP
-
-void fftCooleyTookey(std::vector<std::complex<double>>& x) {
-    const size_t N = x.size();
-    if (N <= 1) return;
-
-    // divide
-    std::vector<std::complex<double>> even = std::vector<std::complex<double>>(N/2);
-	std::vector<std::complex<double>> odd = std::vector<std::complex<double>>(N/2);
-
-	for (size_t i = 0; i < N/2; ++i) {
-		even[i] = x[i*2];
-		odd[i] = x[i*2+1];
-	}
-
-    // conquer
-    fftCooleyTookey(even);
-    fftCooleyTookey(odd);
-
-    // combine
-    for (size_t k = 0; k < N/2; ++k) {
-        std::complex<double> t = std::polar(1.0, -2 * M_PI * k / N) * odd[k];
-        x[k    ] = even[k] + t;
-        x[k+N/2] = even[k] - t;
-    }
-
-	// conjugate
-	for (size_t i = 0; i < x.size(); i += 1) {
-		x[i] = std::conj(x[i]);
-	}
-}
-
-#endif
-
 
 #if defined(USE_CUDA)
 // a lot of model outputs assume this is defined for some reason, so just define it

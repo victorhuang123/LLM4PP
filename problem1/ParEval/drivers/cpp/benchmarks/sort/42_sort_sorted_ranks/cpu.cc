@@ -42,11 +42,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    ranks(ctx->x, ctx->ranks);
+    generated::ranks(ctx->x, ctx->ranks);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctRanks(ctx->x, ctx->ranks);
+    baseline::ranks(ctx->x, ctx->ranks);
 }
 
 bool validate(Context *ctx) {
@@ -65,10 +65,10 @@ bool validate(Context *ctx) {
         BCAST(x, FLOAT);
 
         // compute correct result
-        correctRanks(x, correct);
+        baseline::ranks(x, correct);
 
         // compute test result
-        ranks(x, test);
+        generated::ranks(x, test);
         SYNC();
         
         if (IS_ROOT(rank) && !std::equal(correct.begin(), correct.end(), test.begin())) {

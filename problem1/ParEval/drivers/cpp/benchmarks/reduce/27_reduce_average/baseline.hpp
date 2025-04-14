@@ -11,6 +11,6 @@
    input: [2, 2, 2, 3]
    output: 2.25
 */
-double NO_INLINE correctAverage(std::vector<double> const& x) {
+double NO_INLINE average(std::vector<double> const& x) {
     return std::reduce(x.begin(), x.end(), 0.0) / (double) x.size();
 }

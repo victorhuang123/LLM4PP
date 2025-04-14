@@ -35,12 +35,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    size_t idx = findClosestToPi(ctx->x);
+    size_t idx = generated::findClosestToPi(ctx->x);
     (void)idx;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    size_t idx = correctFindClosestToPi(ctx->x);
+    size_t idx = baseline::findClosestToPi(ctx->x);
     (void)idx;
 }
 
@@ -59,10 +59,10 @@ bool validate(Context *ctx) {
         BCAST(input, DOUBLE);
 
         // compute correct result
-        size_t correct = correctFindClosestToPi(input);
+        size_t correct = baseline::findClosestToPi(input);
 
         // compute test result
-        size_t test = findClosestToPi(input);
+        size_t test = generated::findClosestToPi(input);
         SYNC();
         
         bool isCorrect = true;

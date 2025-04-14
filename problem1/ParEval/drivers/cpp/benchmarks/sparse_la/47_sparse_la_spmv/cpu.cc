@@ -25,7 +25,8 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<COOElement> A;
+    std::vector<baseline::COOElement> A;
+    std::vector<generated::COOElement> A_test;
     std::vector<size_t> rows, columns;
     std::vector<double> x, y, values;
     double alpha, beta;
@@ -53,9 +54,12 @@ void reset(Context *ctx) {
     for (size_t i = 0; i < ctx->A.size(); i += 1) {
         ctx->A[i] = {ctx->rows[i], ctx->columns[i], ctx->values[i]};
     }
-    std::sort(ctx->A.begin(), ctx->A.end(), [](COOElement const& a, COOElement const& b) {
+    std::sort(ctx->A.begin(), ctx->A.end(), [](baseline::COOElement const& a, baseline::COOElement const& b) {
         return (a.row == b.row) ? (a.column < b.column) : (a.row < b.row);
     });
+    for (size_t i = 0; i < ctx->A.size(); i += 1) {
+        ctx->A_test[i] = {ctx->A[i].row, ctx->A[i].column, ctx->A[i].value};
+    }
 }
 
 Context *init() {
@@ -66,6 +70,7 @@ Context *init() {
     const size_t nVals = ctx->M * ctx->N * SPARSE_LA_SPARSITY;
 
     ctx->A.resize(nVals);
+    ctx->A_test.resize(nVals);
     ctx->rows.resize(nVals);
     ctx->columns.resize(nVals);
     ctx->values.resize(nVals);
@@ -77,18 +82,19 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    spmv(ctx->alpha, ctx->A, ctx->x, ctx->beta, ctx->y, ctx->M, ctx->N);
+    generated::spmv(ctx->alpha, ctx->A_test, ctx->x, ctx->beta, ctx->y, ctx->M, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSpmv(ctx->alpha, ctx->A, ctx->x, ctx->beta, ctx->y, ctx->M, ctx->N);
+    baseline::spmv(ctx->alpha, ctx->A, ctx->x, ctx->beta, ctx->y, ctx->M, ctx->N);
 }
 
 bool validate(Context *ctx) {
     const size_t TEST_SIZE = 128;
     const size_t nVals = TEST_SIZE * TEST_SIZE * SPARSE_LA_SPARSITY;
 
-    std::vector<COOElement> A(nVals);
+    std::vector<baseline::COOElement> A(nVals);
+    std::vector<generated::COOElement> A_test(nVals);
     std::vector<size_t> rows(nVals), columns(nVals);
     std::vector<double> values(nVals), x(TEST_SIZE), correct(TEST_SIZE), test(TEST_SIZE);
 
@@ -118,15 +124,18 @@ bool validate(Context *ctx) {
         for (size_t i = 0; i < A.size(); i += 1) {
             A[i] = {rows[i], columns[i], values[i]};
         }
-        std::sort(A.begin(), A.end(), [](COOElement const& a, COOElement const& b) {
+        std::sort(A.begin(), A.end(), [](baseline::COOElement const& a, baseline::COOElement const& b) {
             return (a.row == b.row) ? (a.column < b.column) : (a.row < b.row);
         });
+        for (size_t i = 0; i < A.size(); i += 1) {
+            A_test[i] = {A[i].row, A[i].column, A[i].value};
+        }
 
         // compute correct result
-        correctSpmv(alpha, A, x, beta, correct, TEST_SIZE, TEST_SIZE);
+        baseline::spmv(alpha, A, x, beta, correct, TEST_SIZE, TEST_SIZE);
 
         // compute test result
-        spmv(alpha, A, x, beta, test, TEST_SIZE, TEST_SIZE);
+        generated::spmv(alpha, A_test, x, beta, test, TEST_SIZE, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

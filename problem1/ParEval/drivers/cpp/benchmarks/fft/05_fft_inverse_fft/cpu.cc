@@ -50,11 +50,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    ifft(ctx->x);
+    generated::ifft(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctIfft(ctx->x);
+    baseline::ifft(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -80,11 +80,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<std::complex<double>> correct = x;
-        correctIfft(correct);
+        baseline::ifft(correct);
 
         // compute test result
         std::vector<std::complex<double>> test = x;
-        ifft(test);
+        generated::ifft(test);
         SYNC();
         
         bool isCorrect = true;

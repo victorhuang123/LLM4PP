@@ -26,26 +26,31 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<COOElement> A;
+    std::vector<baseline::COOElement> A;
+    std::vector<generated::COOElement> A_test;
     std::vector<size_t> rows, columns;
     std::vector<double> values, L, U;
     size_t N;
 };
 
+template <typename COOElement>
 void sortCOO(std::vector<COOElement> &A) {
-    std::sort(A.begin(), A.end(), [](COOElement const& a, COOElement const& b) {
+    std::sort(A.begin(), A.end(), [](const COOElement &a, const COOElement &b) {
         return (a.row == b.row) ? (a.column < b.column) : (a.row < b.row);
     });
 }
 
-bool isCOOEqual(std::vector<COOElement> &a, std::vector<COOElement> &b, double epsilon = 1e-6) {
+template<typename T1, typename T2>
+bool isCOOEqual(std::vector<T1> &a, std::vector<T2> &b, double epsilon = 1e-6) {
     if (a.size() != b.size()) {
         return false;
     }
     sortCOO(a);
     sortCOO(b);
     for (int i = 0; i < a.size(); i += 1) {
-        if (a[i].row != b[i].row || a[i].column != b[i].column || std::abs(a[i].value - b[i].value) > epsilon) {
+        if (a[i].row != b[i].row || 
+            a[i].column != b[i].column || 
+            std::abs(a[i].value - b[i].value) > epsilon) {
             return false;
         }
     }
@@ -62,10 +67,15 @@ void reset(Context *ctx) {
 
     ctx->A.reserve(ctx->rows.size());
     ctx->A.clear();
+    ctx->A_test.reserve(ctx->rows.size());
+    ctx->A_test.clear();
     for (int i = 0; i < ctx->rows.size(); i += 1) {
         ctx->A.push_back({ctx->rows[i], ctx->columns[i], ctx->values[i]});
     }
     sortCOO(ctx->A);
+    for (int i = 0; i < ctx->rows.size(); i += 1) {
+        ctx->A_test.push_back({ctx->A[i].row, ctx->A[i].column, ctx->A[i].value});
+    }
     
     std::fill(ctx->L.begin(), ctx->L.end(), 0.0);
     std::fill(ctx->U.begin(), ctx->U.end(), 0.0);
@@ -88,11 +98,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    luFactorize(ctx->A, ctx->L, ctx->U, ctx->N);
+    generated::luFactorize(ctx->A_test, ctx->L, ctx->U, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctLuFactorize(ctx->A, ctx->L, ctx->U, ctx->N);
+    baseline::luFactorize(ctx->A, ctx->L, ctx->U, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -101,7 +111,8 @@ bool validate(Context *ctx) {
 
     std::vector<size_t> rows(nVals), columns(nVals);
     std::vector<double> values(nVals);
-    std::vector<COOElement> A;
+    std::vector<baseline::COOElement> A;
+    std::vector<generated::COOElement> A_test;
     std::vector<double> L_correct(TEST_SIZE * TEST_SIZE), U_correct(TEST_SIZE * TEST_SIZE);
     std::vector<double> L_test(TEST_SIZE * TEST_SIZE), U_test(TEST_SIZE * TEST_SIZE);
 
@@ -124,16 +135,21 @@ bool validate(Context *ctx) {
             A.push_back({rows[i], columns[i], values[i]});
         }
         sortCOO(A);
+        A_test.reserve(rows.size());
+        A_test.clear();
+        for (int i = 0; i < rows.size(); i += 1) {
+            A_test.push_back({A[i].row, A[i].column, A[i].value});
+        }
 
         // compute correct result
         std::fill(L_correct.begin(), L_correct.end(), 0.0);
         std::fill(U_correct.begin(), U_correct.end(), 0.0);
-        correctLuFactorize(A, L_correct, U_correct, TEST_SIZE);
+        baseline::luFactorize(A, L_correct, U_correct, TEST_SIZE);
 
         // compute test result
         std::fill(L_test.begin(), L_test.end(), 0.0);
         std::fill(U_test.begin(), U_test.end(), 0.0);
-        luFactorize(A, L_test, U_test, TEST_SIZE);
+        generated::luFactorize(A_test, L_test, U_test, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

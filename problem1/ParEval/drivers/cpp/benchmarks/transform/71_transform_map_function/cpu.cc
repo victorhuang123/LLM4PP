@@ -39,11 +39,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    mapPowersOfTwo(ctx->x, ctx->mask);
+    generated::mapPowersOfTwo(ctx->x, ctx->mask);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctMapPowersOfTwo(ctx->x, ctx->mask);
+    baseline::mapPowersOfTwo(ctx->x, ctx->mask);
 }
 
 bool validate(Context *ctx) {
@@ -59,11 +59,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<bool> correctResult(input.size());
-        correctMapPowersOfTwo(input, correctResult);
+        baseline::mapPowersOfTwo(input, correctResult);
 
         // compute test result
         std::vector<bool> testResult(input.size());
-        mapPowersOfTwo(input, testResult);
+        generated::mapPowersOfTwo(input, testResult);
         SYNC();
         
         bool isCorrect = true;

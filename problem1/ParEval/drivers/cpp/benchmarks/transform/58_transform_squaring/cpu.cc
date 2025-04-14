@@ -35,11 +35,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    squareEach(ctx->x);
+    generated::squareEach(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSquareEach(ctx->x);
+    baseline::squareEach(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -55,11 +55,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<int> correctResult = input;
-        correctSquareEach(correctResult);
+        baseline::squareEach(correctResult);
 
         // compute test result
         std::vector<int> testResult = input;
-        squareEach(testResult);
+        generated::squareEach(testResult);
         SYNC();
         
         bool isCorrect = true;

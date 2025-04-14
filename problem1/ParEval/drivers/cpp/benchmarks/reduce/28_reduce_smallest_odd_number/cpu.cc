@@ -39,12 +39,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int val = smallestOdd(ctx->x);
+    int val = generated::smallestOdd(ctx->x);
     (void)val;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int val = correctSmallestOdd(ctx->x);
+    int val = baseline::smallestOdd(ctx->x);
     (void)val;
 }
 
@@ -64,10 +64,10 @@ bool validate(Context *ctx) {
         BCAST(x, INT);
 
         // compute correct result
-        correct = correctSmallestOdd(x);
+        correct = baseline::smallestOdd(x);
 
         // compute test result
-        test = smallestOdd(x);
+        test = generated::smallestOdd(x);
         SYNC();
 
         bool isCorrect = true;

@@ -40,12 +40,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    double distance = closestPair(ctx->x);
+    double distance = generated::closestPair(ctx->x);
     (void)distance;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    double distance = correctClosestPair(ctx->x);
+    double distance = baseline::closestPair(ctx->x);
     (void)distance;
 }
 
@@ -67,10 +67,10 @@ bool validate(Context *ctx) {
         BCAST(x, DOUBLE);
 
         // compute correct result
-        correct = correctClosestPair(x);
+        correct = baseline::closestPair(x);
 
         // compute test result
-        test = closestPair(x);
+        test = generated::closestPair(x);
         SYNC();
 
         bool isCorrect = true;

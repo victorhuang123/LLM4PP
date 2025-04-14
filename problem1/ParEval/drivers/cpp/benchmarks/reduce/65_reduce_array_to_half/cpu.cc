@@ -44,12 +44,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int val = correctReduceArrayToHalf(ctx->x);
+    int val = generated::reduceArrayToHalf(ctx->x);
     (void)val;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int val = correctCorrectReduceArrayToHalf(ctx->x);
+    int val = baseline::reduceArrayToHalf(ctx->x);
     (void)val;
 }
 
@@ -69,10 +69,10 @@ bool validate(Context *ctx) {
         BCAST(x, INT);
 
         // compute correct result
-        correct = correctCorrectReduceArrayToHalf(x);
+        correct = baseline::reduceArrayToHalf(x);
 
         // compute test result
-        test = correctReduceArrayToHalf(x);
+        test = generated::reduceArrayToHalf(x);
         SYNC();
 
         bool isCorrect = true;

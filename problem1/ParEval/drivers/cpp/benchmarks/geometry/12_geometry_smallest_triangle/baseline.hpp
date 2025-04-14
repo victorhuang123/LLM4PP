@@ -2,13 +2,17 @@
 #include <vector>
 #include <limits>
 
+
+struct Point {
+    double x, y;
+};
 /* Return the area of the smallest triangle that can be formed by any 3 points.
    Example:
 
    input: [{0, 10}, {5, 5}, {1,0}, {-1, 1}, {-10, 0}]
    output: 5.5
 */
-double NO_INLINE correctSmallestArea(std::vector<Point> const& points) {
+double NO_INLINE smallestArea(std::vector<Point> const& points) {
     // The polygon needs to have at least three points
     if (points.size() < 3)   {
         return 0;

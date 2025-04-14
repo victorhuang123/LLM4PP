@@ -11,7 +11,7 @@
    input: [5, 3, 2 1]
    output: [3, 1]
 */
-void NO_INLINE correctCountOddEven(std::vector<int> const& x, std::array<size_t, 2> &bins) {
+void NO_INLINE countOddEven(std::vector<int> const& x, std::array<size_t, 2> &bins) {
 
    bins[0] = bins[1] = 0;
    for (int i = 0; i < x.size(); i += 1) {

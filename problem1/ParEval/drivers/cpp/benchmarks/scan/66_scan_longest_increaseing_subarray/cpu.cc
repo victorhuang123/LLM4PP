@@ -40,11 +40,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    longestIncreasingSubarray(ctx->x, ctx->output);
+    generated::longestIncreasingSubarray(ctx->x, ctx->output);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctLongestIncreasingSubarray(ctx->x, ctx->output);
+    baseline::longestIncreasingSubarray(ctx->x, ctx->output);
 }
 
 bool validate(Context *ctx) {
@@ -62,10 +62,10 @@ bool validate(Context *ctx) {
         BCAST(x, INT);
 
         // compute correct result
-        correctLongestIncreasingSubarray(x, correct);
+        baseline::longestIncreasingSubarray(x, correct);
 
         // compute test result
-        longestIncreasingSubarray(x, test);
+        generated::longestIncreasingSubarray(x, test);
         SYNC();
 
         bool isCorrect = true;

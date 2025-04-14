@@ -41,11 +41,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    reversePrefixSum(ctx->x, ctx->output);
+    generated::reversePrefixSum(ctx->x, ctx->output);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctReversePrefixSum(ctx->x, ctx->output);
+    baseline::reversePrefixSum(ctx->x, ctx->output);
 }
 
 bool validate(Context *ctx) {
@@ -63,10 +63,10 @@ bool validate(Context *ctx) {
         BCAST(x, INT);
 
         // compute correct result
-        correctReversePrefixSum(x, correct);
+        baseline::reversePrefixSum(x, correct);
 
         // compute test result
-        reversePrefixSum(x, test);
+        generated::reversePrefixSum(x, test);
         SYNC();
 
         bool isCorrect = true;

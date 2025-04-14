@@ -10,7 +10,7 @@
    input: [−2, 1, 2, 0, −1, 2, 3, −5, 4]
    output: [-2, 1, 2]
 */
-void NO_INLINE correctLongestIncreasingSubarray(std::vector<int> const& x, std::vector<int> &output) {
+void NO_INLINE longestIncreasingSubarray(std::vector<int> const& x, std::vector<int> &output) {
     //return a null array when x is null
     if(x.size()==0)	return ;
 

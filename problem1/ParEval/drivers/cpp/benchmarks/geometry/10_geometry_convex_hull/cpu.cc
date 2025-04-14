@@ -22,7 +22,8 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<Point> points, hull;
+    std::vector<baseline::Point> points, hull;
+    std::vector<generated::Point> points_test, hull_test;
     std::vector<double> x, y;
 };
 
@@ -36,6 +37,8 @@ void reset(Context *ctx) {
     for (size_t i = 0; i < ctx->points.size(); i++) {
         ctx->points[i].x = ctx->x[i];
         ctx->points[i].y = ctx->y[i];
+        ctx->points_test[i].x = ctx->x[i];
+        ctx->points_test[i].y = ctx->y[i];
     }
 }
 
@@ -43,26 +46,29 @@ Context *init() {
     Context *ctx = new Context();
 
     ctx->points.resize(DRIVER_PROBLEM_SIZE);
+    ctx->points_test.resize(DRIVER_PROBLEM_SIZE);
     ctx->x.resize(DRIVER_PROBLEM_SIZE);
     ctx->y.resize(DRIVER_PROBLEM_SIZE);
     ctx->hull.resize(0);
+    ctx->hull_test.resize(0);
 
     reset(ctx);
     return ctx;
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    convexHull(ctx->points, ctx->hull);
+    generated::convexHull(ctx->points_test, ctx->hull_test);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctConvexHull(ctx->points, ctx->hull);
+    baseline::convexHull(ctx->points, ctx->hull);
 }
 
 bool validate(Context *ctx) {
     const size_t TEST_SIZE = 1024;
 
-    std::vector<Point> points(TEST_SIZE), correct(0), test(0);
+    std::vector<baseline::Point> points(TEST_SIZE), correct(0);
+    std::vector<generated::Point> points_test(TEST_SIZE), test(0);
     std::vector<double> x(TEST_SIZE), y(TEST_SIZE);
 
     int rank;
@@ -81,13 +87,15 @@ bool validate(Context *ctx) {
         for (size_t i = 0; i < points.size(); i++) {
             points[i].x = x[i];
             points[i].y = y[i];
+            points_test[i].x = x[i];
+            points_test[i].y = y[i];
         }
 
         // compute correct result
-        correctConvexHull(points, correct);
+        baseline::convexHull(points, correct);
 
         // compute test result
-        convexHull(points, test);
+        generated::convexHull(points_test, test);
         SYNC();
 
         bool isCorrect = true;
@@ -95,10 +103,10 @@ bool validate(Context *ctx) {
             if (test.size() != correct.size()) {
                 isCorrect = false;
             } else {
-                std::sort(test.begin(), test.end(), [](Point const& a, Point const& b) {
+                std::sort(test.begin(), test.end(), [](generated::Point const& a, generated::Point const& b) {
                     return a.x < b.x || (a.x == b.x && a.y < b.y);
                 });
-                std::sort(correct.begin(), correct.end(), [](Point const& a, Point const& b) {
+                std::sort(correct.begin(), correct.end(), [](baseline::Point const& a, baseline::Point const& b) {
                     return a.x < b.x || (a.x == b.x && a.y < b.y);
                 });
                 for (size_t i = 0; i < test.size(); i++) {

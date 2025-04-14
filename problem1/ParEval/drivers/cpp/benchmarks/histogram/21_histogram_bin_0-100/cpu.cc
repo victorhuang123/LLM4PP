@@ -40,11 +40,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    binsBy10Count(ctx->x, ctx->bins);
+    generated::binsBy10Count(ctx->x, ctx->bins);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctBinsBy10Count(ctx->x, ctx->bins);
+    baseline::binsBy10Count(ctx->x, ctx->bins);
 }
 
 bool validate(Context *ctx) {
@@ -65,10 +65,10 @@ bool validate(Context *ctx) {
         test.fill(0);
 
         // compute correct result
-        correctBinsBy10Count(x, correct);
+        baseline::binsBy10Count(x, correct);
 
         // compute test result
-        binsBy10Count(x, test);
+        generated::binsBy10Count(x, test);
         SYNC();
         
         bool isCorrect = true;

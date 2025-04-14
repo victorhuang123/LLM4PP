@@ -40,11 +40,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    luFactorize(ctx->A, ctx->N);
+    generated::luFactorize(ctx->A, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctLuFactorize(ctx->A, ctx->N);
+    baseline::luFactorize(ctx->A, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -65,11 +65,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         A_correct = A;
-        correctLuFactorize(A_correct, TEST_SIZE);
+        baseline::luFactorize(A_correct, TEST_SIZE);
 
         // compute test result
         A_test = A;
-        luFactorize(A_test, TEST_SIZE);
+        generated::luFactorize(A_test, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

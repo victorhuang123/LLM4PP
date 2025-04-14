@@ -47,12 +47,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int found = matchTimes(ctx->x, ctx->y, ctx->val);
+    int found = generated::matchTimes(ctx->x, ctx->y, ctx->val);
     (void)found;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int found = correctMatchTimes(ctx->x, ctx->y, ctx->val);
+    int found = baseline::matchTimes(ctx->x, ctx->y, ctx->val);
     (void)found;
 }
 
@@ -79,10 +79,10 @@ bool validate(Context *ctx) {
         BCAST_PTR(&val, 1, INT);
 
         // compute correct result
-        int correct = correctMatchTimes(x, y, val);
+        int correct = baseline::matchTimes(x, y, val);
 
         // compute test result
-        int test = matchTimes(x, y, val);
+        int test = generated::matchTimes(x, y, val);
         SYNC();
         
         bool isCorrect = true;

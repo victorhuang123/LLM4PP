@@ -54,11 +54,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    gameOfLife(ctx->input, ctx->output, ctx->N);
+    generated::gameOfLife(ctx->input, ctx->output, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctGameOfLife(ctx->input, ctx->output, ctx->N);
+    baseline::gameOfLife(ctx->input, ctx->output, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -78,10 +78,10 @@ bool validate(Context *ctx) {
         BCAST(input, INT);
 
         // compute correct result
-        correctGameOfLife(input, correct, TEST_SIZE);
+        baseline::gameOfLife(input, correct, TEST_SIZE);
 
         // compute test result
-        gameOfLife(input, test, TEST_SIZE);
+        generated::gameOfLife(input, test, TEST_SIZE);
         SYNC();
 
         bool isCorrect = true;

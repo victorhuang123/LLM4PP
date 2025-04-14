@@ -48,12 +48,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    bool found = xorContains(ctx->x, ctx->y, ctx->val);
+    bool found = generated::xorContains(ctx->x, ctx->y, ctx->val);
     (void)found;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    bool found = correctXorContains(ctx->x, ctx->y, ctx->val);
+    bool found = baseline::xorContains(ctx->x, ctx->y, ctx->val);
     (void)found;
 }
 
@@ -80,10 +80,10 @@ bool validate(Context *ctx) {
         BCAST_PTR(&val, 1, INT);
 
         // compute correct result
-        bool correct = correctXorContains(x, y, val);
+        bool correct = baseline::xorContains(x, y, val);
 
         // compute test result
-        bool test = xorContains(x, y, val);
+        bool test = generated::xorContains(x, y, val);
         SYNC();
         
         bool isCorrect = true;

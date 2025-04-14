@@ -39,12 +39,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    float sm = median(ctx->x);
+    float sm = generated::median(ctx->x);
     (void)sm;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    float sm = correctMedian(ctx->x);
+    float sm = baseline::median(ctx->x);
     (void)sm;
 }
 
@@ -63,10 +63,10 @@ bool validate(Context *ctx) {
         BCAST(x, INT);
 
         // compute correct result
-        float correct = correctMedian(x);
+        float correct = baseline::median(x);
 
         // compute test result
-        float test = median(x);
+        float test = generated::median(x);
         SYNC();
         bool isCorrect = true;
         if (IS_ROOT(rank) && std::fabs(correct - test) > 1e-5 ) {

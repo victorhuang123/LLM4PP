@@ -2,13 +2,17 @@
 #include <vector>
 #include <algorithm>
 
+struct Point {
+    double x, y;
+};
+
 /* Find the set of points that defined the smallest convex polygon that contains all the points in the vector points. Store the result in `hull`.
    Example:
 
    input: [{0, 3}, {1, 1}, {2, 2}, {4, 4}, {0, 0}, {1, 2}, {3, 1}, {3, 3}]
    output: [{0, 3}, {4, 4}, {3, 1}, {0, 0}]
 */
-void NO_INLINE correctConvexHull(std::vector<Point> const& points, std::vector<Point> &hull) {
+void NO_INLINE convexHull(std::vector<Point> const& points, std::vector<Point> &hull) {
     // The polygon needs to have at least three points
     if (points.size() < 3)   {
         hull = points;

@@ -39,11 +39,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    dft(ctx->x, ctx->output);
+    generated::dft(ctx->x, ctx->output);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctDft(ctx->x, ctx->output);
+    baseline::dft(ctx->x, ctx->output);
 }
 
 bool validate(Context *ctx) {
@@ -62,10 +62,10 @@ bool validate(Context *ctx) {
         BCAST(x, DOUBLE);
 
         // compute correct result
-        correctDft(x, correct);
+        baseline::dft(x, correct);
 
         // compute test result
-        dft(x, test);
+        generated::dft(x, test);
         SYNC();
         
         bool isCorrect = true;

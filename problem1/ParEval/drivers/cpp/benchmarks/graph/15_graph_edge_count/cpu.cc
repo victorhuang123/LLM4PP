@@ -50,12 +50,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int ec = edgeCount(ctx->A, ctx->N);
+    int ec = generated::edgeCount(ctx->A, ctx->N);
     (void)ec;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int ec = correctEdgeCount(ctx->A, ctx->N);
+    int ec = baseline::edgeCount(ctx->A, ctx->N);
     (void)ec;
 }
 
@@ -74,10 +74,10 @@ bool validate(Context *ctx) {
         BCAST(A, INT);
 
         // compute correct result
-        int correct = correctEdgeCount(A, TEST_SIZE);
+        int correct = baseline::edgeCount(A, TEST_SIZE);
 
         // compute test result
-        int test = edgeCount(A, TEST_SIZE);
+        int test = generated::edgeCount(A, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

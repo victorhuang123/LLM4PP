@@ -41,11 +41,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    countOddEven(ctx->x, ctx->bins);
+    generated::countOddEven(ctx->x, ctx->bins);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctCountOddEven(ctx->x, ctx->bins);
+    baseline::countOddEven(ctx->x, ctx->bins);
 }
 
 bool validate(Context *ctx) {
@@ -66,10 +66,10 @@ bool validate(Context *ctx) {
         test.fill(0);
 
         // compute correct result
-        correctCountOddEven(x, correct);
+        baseline::countOddEven(x, correct);
 
         // compute test result
-        countOddEven(x, test);
+        generated::countOddEven(x, test);
         SYNC();
         
         bool isCorrect = true;

@@ -59,11 +59,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
+    generated::solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctSolveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
+    baseline::solveLinearSystem(ctx->A, ctx->b, ctx->x, ctx->N);
 }
 
 bool validate(Context *ctx) {
@@ -86,10 +86,10 @@ bool validate(Context *ctx) {
         BCAST(b, DOUBLE);
 
         // compute correct result
-        correctSolveLinearSystem(A, b, correct, TEST_SIZE);
+        baseline::solveLinearSystem(A, b, correct, TEST_SIZE);
 
         // compute test result
-        solveLinearSystem(A, b, test, TEST_SIZE);
+        generated::solveLinearSystem(A, b, test, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

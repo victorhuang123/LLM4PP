@@ -21,7 +21,7 @@
 #endif
 
 #if !defined(MAX_VALIDATION_ATTEMPTS)
-#define MAX_VALIDATION_ATTEMPTS 2
+#define MAX_VALIDATION_ATTEMPTS 10
 #endif
 
 #if !defined(SPARSE_LA_SPARSITY)

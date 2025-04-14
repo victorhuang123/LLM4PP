@@ -26,7 +26,8 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<Point> points;
+    std::vector<baseline::Point> points;
+    std::vector<generated::Point> points_test;
     std::vector<double> x, y;
 };
 
@@ -39,6 +40,8 @@ void reset(Context *ctx) {
     for (size_t i = 0; i < ctx->points.size(); i++) {
         ctx->points[i].x = ctx->x[i];
         ctx->points[i].y = ctx->y[i];
+        ctx->points_test[i].x = ctx->x[i];
+        ctx->points_test[i].y = ctx->y[i];
     }
 }
 
@@ -46,6 +49,7 @@ Context *init() {
     Context *ctx = new Context();
 
     ctx->points.resize(DRIVER_PROBLEM_SIZE);
+    ctx->points_test.resize(DRIVER_PROBLEM_SIZE);
     ctx->x.resize(DRIVER_PROBLEM_SIZE);
     ctx->y.resize(DRIVER_PROBLEM_SIZE);
 
@@ -54,19 +58,20 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    double perimeter = convexHullPerimeter(ctx->points);
+    double perimeter = generated::convexHullPerimeter(ctx->points_test);
     (void)perimeter;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    double perimeter = correctConvexHullPerimeter(ctx->points);
+    double perimeter = baseline::convexHullPerimeter(ctx->points);
     (void)perimeter;
 }
 
 bool validate(Context *ctx) {
     const size_t TEST_SIZE = 1024;
 
-    std::vector<Point> points(TEST_SIZE);
+    std::vector<baseline::Point> points(TEST_SIZE);
+    std::vector<generated::Point> points_test(TEST_SIZE);
     std::vector<double> x(TEST_SIZE), y(TEST_SIZE);
     double correct = 0.0, test = 0.0;
 
@@ -86,13 +91,15 @@ bool validate(Context *ctx) {
         for (size_t i = 0; i < points.size(); i++) {
             points[i].x = x[i];
             points[i].y = y[i];
+            points_test[i].x = x[i];
+            points_test[i].y = y[i];
         }
 
         // compute correct result
-        correct = correctConvexHullPerimeter(points);
+        correct = baseline::convexHullPerimeter(points);
 
         // compute test result
-        test = convexHullPerimeter(points);
+        test = generated::convexHullPerimeter(points_test);
         SYNC();
 
         bool isCorrect = true;

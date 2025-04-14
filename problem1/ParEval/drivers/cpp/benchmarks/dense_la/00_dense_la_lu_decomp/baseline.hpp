@@ -9,7 +9,7 @@
    input: [[4, 3], [6, 3]]
    output: [[4, 3], [1.5, -1.5]]
 */
-void correctLuFactorize(std::vector<double> &A, size_t N) {
+void luFactorize(std::vector<double> &A, size_t N) {
    for (size_t k = 0; k < N; ++k) {
        for (size_t i = k + 1; i < N; ++i) {
 

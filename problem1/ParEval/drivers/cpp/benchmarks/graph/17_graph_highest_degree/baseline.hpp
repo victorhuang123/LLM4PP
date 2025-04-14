@@ -13,7 +13,7 @@
 	 input: [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [1, 1, 1, 0]]
    output: 3
 */
-int NO_INLINE correctMaxDegree(std::vector<int> const& A, size_t N) {
+int NO_INLINE maxDegree(std::vector<int> const& A, size_t N) {
    int maxDegree = 0;
    for (int i = 0; i < N; i += 1) {
       int degree = 0;

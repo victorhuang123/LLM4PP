@@ -47,12 +47,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    size_t idx = findFirstEven(ctx->x);
+    size_t idx = generated::findFirstEven(ctx->x);
     (void)idx;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    size_t idx = correctFindFirstEven(ctx->x);
+    size_t idx = baseline::findFirstEven(ctx->x);
     (void)idx;
 }
 
@@ -75,10 +75,10 @@ bool validate(Context *ctx) {
         BCAST(x, INT);
 
         // compute correct result
-        size_t correct = correctFindFirstEven(x);
+        size_t correct = baseline::findFirstEven(x);
 
         // compute test result
-        size_t test = findFirstEven(x);
+        size_t test = generated::findFirstEven(x);
         SYNC();
         
         bool isCorrect = true;

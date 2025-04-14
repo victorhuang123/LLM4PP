@@ -50,12 +50,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int lc = largestComponent(ctx->A, ctx->N);
+    int lc = generated::largestComponent(ctx->A, ctx->N);
     (void)lc;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int lc = correctLargestComponent(ctx->A, ctx->N);
+    int lc = baseline::largestComponent(ctx->A, ctx->N);
     (void)lc;
 }
 
@@ -74,10 +74,10 @@ bool validate(Context *ctx) {
         BCAST(A, INT);
 
         // compute correct result
-        int correct = correctLargestComponent(A, TEST_SIZE);
+        int correct = baseline::largestComponent(A, TEST_SIZE);
 
         // compute test result
-        int test = largestComponent(A, TEST_SIZE);
+        int test = generated::largestComponent(A, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

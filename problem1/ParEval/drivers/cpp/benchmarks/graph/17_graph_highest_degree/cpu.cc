@@ -50,12 +50,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int md = maxDegree(ctx->A, ctx->N);
+    int md = generated::maxDegree(ctx->A, ctx->N);
     (void)md;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int md = correctMaxDegree(ctx->A, ctx->N);
+    int md = baseline::maxDegree(ctx->A, ctx->N);
     (void)md;
 }
 
@@ -74,10 +74,10 @@ bool validate(Context *ctx) {
         BCAST(A, INT);
 
         // compute correct result
-        int correct = correctMaxDegree(A, TEST_SIZE);
+        int correct = baseline::maxDegree(A, TEST_SIZE);
 
         // compute test result
-        int test = maxDegree(A, TEST_SIZE);
+        int test = generated::maxDegree(A, TEST_SIZE);
         SYNC();
         
         bool isCorrect = true;

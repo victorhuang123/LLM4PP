@@ -39,12 +39,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    double val = average(ctx->x);
+    double val = generated::average(ctx->x);
     (void)val;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    double val = correctAverage(ctx->x);
+    double val = baseline::average(ctx->x);
     (void)val;
 }
 
@@ -64,10 +64,10 @@ bool validate(Context *ctx) {
         BCAST(x, DOUBLE);
 
         // compute correct result
-        correct = correctAverage(x);
+        correct = baseline::average(x);
 
         // compute test result
-        test = average(x);
+        test = generated::average(x);
         SYNC();
 
         bool isCorrect = true;

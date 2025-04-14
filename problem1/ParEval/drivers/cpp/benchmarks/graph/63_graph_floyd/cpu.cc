@@ -78,11 +78,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    floyd(ctx->A, ctx->N, ctx->R);
+    generated::floyd(ctx->A, ctx->N, ctx->R);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctFloyd(ctx->A, ctx->N, ctx->R);
+    baseline::floyd(ctx->A, ctx->N, ctx->R);
 }
 
 bool validate(Context *ctx) {
@@ -103,10 +103,10 @@ bool validate(Context *ctx) {
         BCAST(A, INT);
 
         // compute correct result
-        correctFloyd(A, TEST_SIZE, correct);
+        baseline::floyd(A, TEST_SIZE, correct);
 
         // compute test result
-        floyd(A, TEST_SIZE, test);
+        generated::floyd(A, TEST_SIZE, test);
         SYNC();
         
 

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <numeric>
 #include <unordered_map>
-
+#include <queue>
 /* Given an integer array x. You can choose a set of integers and remove all the occurrences of these integers in the array.
    Return the minimum size of the set so that at least half of the integers of the array are removed.
 
@@ -19,7 +19,7 @@ Choosing set {2,7} is not possible as it will make the new array [3,3,3,3,5,5,5]
    output: 1
    explanation: The only possible set you can choose is {7}. This will make the new array empty.
 */
-int NO_INLINE correctCorrectReduceArrayToHalf(std::vector<int> const& x) {
+int NO_INLINE reduceArrayToHalf(std::vector<int> const& x) {
     std::unordered_map<int, int> counter;
     std::priority_queue<int> q;
     int res = 0, removed = 0;

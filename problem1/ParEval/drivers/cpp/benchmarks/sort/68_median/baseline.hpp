@@ -14,7 +14,7 @@
    output: 2.5
 */
 
-float NO_INLINE correctMedian(std::vector<int> &x) {
+float NO_INLINE median(std::vector<int> &x) {
     if(x.size()==0)	return 0;
 
     std::sort(x.begin(), x.end());

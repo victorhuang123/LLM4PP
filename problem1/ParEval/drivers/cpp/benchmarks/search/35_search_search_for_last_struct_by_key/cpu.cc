@@ -19,7 +19,8 @@
 #include "baseline.hpp"
 
 struct Context {
-    std::vector<Book> books;
+    std::vector<baseline::Book> books;
+    std::vector<generated::Book> books_test;
     std::vector<int> pages;
     std::vector<std::string> titles;
 };
@@ -35,12 +36,15 @@ void reset(Context *ctx) {
     for (int i = 0; i < ctx->books.size(); i += 1) {
         ctx->books[i].title = ctx->titles[i];
         ctx->books[i].pages = ctx->pages[i];
+        ctx->books_test[i].title = ctx->titles[i];
+        ctx->books_test[i].pages = ctx->pages[i];
     }
 }
 
 Context *init() {
     Context *ctx = new Context();
     ctx->books.resize(DRIVER_PROBLEM_SIZE);
+    ctx->books_test.resize(DRIVER_PROBLEM_SIZE);
     ctx->pages.resize(DRIVER_PROBLEM_SIZE);
     ctx->titles.resize(DRIVER_PROBLEM_SIZE);
     reset(ctx);
@@ -48,12 +52,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    size_t idx = findLastShortBook(ctx->books);
+    size_t idx = generated::findLastShortBook(ctx->books_test);
     (void)idx;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    size_t idx = correctFindLastShortBook(ctx->books);
+    size_t idx = baseline::findLastShortBook(ctx->books);
     (void)idx;
 }
 
@@ -65,20 +69,23 @@ bool validate(Context *ctx) {
     const size_t numTries = 5;
     for (int i = 0; i < numTries; i += 1) {
         std::vector<int> pages(1024);
-        std::vector<Book> input(1024);
+        std::vector<baseline::Book> input(1024);
+        std::vector<generated::Book> input_test(1024);
         fillRand(pages, 1, 1000);
         pages[rand() % pages.size()] = 72;  // make sure there is at least one book with < 100 pages
         BCAST(pages, INT);
         for (int j = 0; j < input.size(); j += 1) {
             input[j].title = "title";
             input[j].pages = pages[j];
+            input_test[j].title = "title";
+            input_test[j].pages = pages[j];
         }
 
         // compute correct result
-        size_t correctIdx = correctFindLastShortBook(input);
+        size_t correctIdx = baseline::findLastShortBook(input);
 
         // compute test result
-        size_t testIdx = findLastShortBook(input);
+        size_t testIdx = generated::findLastShortBook(input_test);
         SYNC();
         
         bool isCorrect = true;

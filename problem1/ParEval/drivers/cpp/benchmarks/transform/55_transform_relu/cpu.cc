@@ -36,11 +36,11 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    relu(ctx->x);
+    generated::relu(ctx->x);
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    correctRelu(ctx->x);
+    baseline::relu(ctx->x);
 }
 
 bool validate(Context *ctx) {
@@ -56,11 +56,11 @@ bool validate(Context *ctx) {
 
         // compute correct result
         std::vector<double> correctResult = input;
-        correctRelu(correctResult);
+        baseline::relu(correctResult);
 
         // compute test result
         std::vector<double> testResult = input;
-        relu(testResult);
+        generated::relu(testResult);
         SYNC();
         
         bool isCorrect = true;

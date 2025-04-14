@@ -10,7 +10,7 @@
    input: [8, 4, 0, 9, 8, 0, 1, -1, 7]
    output: [-1, 1, 0, 4, 7, 0, 8, 8, 9]
 */
-void NO_INLINE correctSortIgnoreZero(std::vector<int> &x) {
+void NO_INLINE sortIgnoreZero(std::vector<int> &x) {
     std::vector<int> nonZeroElements;
     for (int num : x) {
         if (num != 0) {
