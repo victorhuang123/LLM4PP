@@ -59,7 +59,7 @@ def process_files(source_dir, debug=False):
         
         # 3. 编译，将 a.out 生成到临时文件夹中
         a_out_path = os.path.join(temp_folder, "a.out")
-        compile_command = f"g++-14 -std=c++17 -O3 -I./tests -DDRIVER_PROBLEM_SIZE=\"(1<<9)\" -Icpp -Icpp/models -I{temp_folder} -DUSE_OMP -fopenmp cpp/models/omp-driver.o {temp_folder}/cpu.cc -o {a_out_path}"
+        compile_command = f"g++ -std=c++20 -O3 -I./tests -DDRIVER_PROBLEM_SIZE=\"(1<<9)\" -Icpp -Icpp/models -I{temp_folder} -DUSE_OMP -fopenmp cpp/models/omp-driver.o {temp_folder}/cpu.cc -o {a_out_path}"
         
         # 打印编译命令（仅在 debug 模式下）
         if debug:

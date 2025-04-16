@@ -28,6 +28,10 @@ def evaluate(problem_id, tgt_code):
             "sparse_la",
             "transform",
         ]
+        number = int(problem_id.split("_")[0])
+        ccc = {'01', '09', '14', '19', '22', '27', '31', '36', '41', '47', '50', '55', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71'}
+        if number in ccc:
+            return [problem_id, ""]
         for c in all_categorys:
             if c in problem_id:
                 category = c
@@ -57,7 +61,7 @@ def evaluate(problem_id, tgt_code):
     if all(correct):
         return [problem_id, tgt_code]
     else:
-        return None
+        return [problem_id, ""]
 
 
 def evaluate_wrapper(args):
@@ -97,16 +101,16 @@ def main():
     # tasks = tasks[:1]
     dataset = {item: [] for item in problem_id_set}
     # print(tasks)
-    with multiprocessing.Pool(processes=8) as pool:
+    with multiprocessing.Pool(processes=16) as pool:
         results = pool.map(evaluate_wrapper, tasks)
 
     count = 0
     for result in results:
-        if result:
+        if result[1] != "":
             count += 1
             dataset[result[0]].append(result[1])
     print("All:", count)
-    with open("./synthesis_data_new.json", "w") as fw:
+    with open("./synthesis_data_new_generate.json", "w") as fw:
         json.dump(dataset, fw, indent=4)
 
 
