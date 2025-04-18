@@ -182,7 +182,7 @@ class CppDriverWrapper(DriverWrapper):
 
     def test_single_output(self, prompt: str, output: str, test_driver_file: PathLike, problem_size: str) -> GeneratedTextResult:
         """ Test a single generated output. """
-        code_opt = False
+        code_opt = True
 
         logging.debug(f"Testing output:\n{output}")
         with tempfile.TemporaryDirectory(dir=self.scratch_dir) as tmpdir:
@@ -193,8 +193,7 @@ class CppDriverWrapper(DriverWrapper):
             # include the entire C++ standard library as well as header for vectorization
             include_header = "#include <bits/stdc++.h>\n#include <immintrin.h>\n"
             include_header = "#include <bits/stdc++.h>\n"
-            # if self.code_opt:
-            if code_opt:
+            if self.code_opt:
                 # output = check_code_compile_errors(output)
                 # output = check_duplicate_function_names(output)
                 write_success = self.write_source(include_header+"\n"+output, src_path, "generated")

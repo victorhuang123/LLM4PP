@@ -277,16 +277,12 @@ def main():
         src_code_path = os.path.join(src_code_base_path, problem_type, problem_id, "baseline.hpp")
         print(src_code_path)
         with open(src_code_path, "r") as fr:
-            # pattern = re.compile(r'correct([A-Z])')
             src_code = fr.read()
-            # src_code = pattern.sub(
-            #         lambda match: match.group(1).lower(),  # 将大写字母转为小写
-            #         src_code,
-            #         count=1  # 仅替换第一个匹配项
-            #     )
-            # src_code = src_code.replace("correct", "")
             
             prompt["src_code"] = src_code
+    
+    # sorted by key
+    all_prompts = sorted(all_prompts, key=lambda x: (x["problem_type"], x["name"], x["parallelism_model"]))
     
     # output
     if args.output:
