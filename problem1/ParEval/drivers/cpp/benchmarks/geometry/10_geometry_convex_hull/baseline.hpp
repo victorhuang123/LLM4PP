@@ -12,47 +12,55 @@ struct Point {
    input: [{0, 3}, {1, 1}, {2, 2}, {4, 4}, {0, 0}, {1, 2}, {3, 1}, {3, 3}]
    output: [{0, 3}, {4, 4}, {3, 1}, {0, 0}]
 */
-void NO_INLINE convexHull(std::vector<Point> const& points, std::vector<Point> &hull) {
-    // The polygon needs to have at least three points
-    if (points.size() < 3)   {
+
+inline double cross(Point const& a, Point const& b, Point const& c) {
+    static const double EPS = 1e-9;
+    double crossVal = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    return crossVal;
+}
+
+void NO_INLINE convexHull(std::vector<Point> const& points, std::vector<Point>& hull) {
+
+    if (points.size() < 3) {
         hull = points;
         return;
     }
 
-    std::vector<Point> pointsSorted = points;
 
-    std::sort(pointsSorted.begin(), pointsSorted.end(), [](Point const& a, Point const& b) {
-        return a.x < b.x || (a.x == b.x && a.y < b.y);
+    std::vector<Point> pts = points;
+    std::sort(pts.begin(), pts.end(), [](auto &a, auto &b) {
+        return (a.x < b.x) || (a.x == b.x && a.y < b.y);
     });
-
-    auto CrossProduct = [](Point const& a, Point const& b, Point const& c) {
-        return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x) > 0;
-    };
-
-    std::vector<Point> upperHull;
-    std::vector<Point> lowerHull;
-    upperHull.push_back(pointsSorted[0]);
-    upperHull.push_back(pointsSorted[1]);
-
-    for (size_t i = 2; i < pointsSorted.size(); i++) {
-        while (upperHull.size() > 1
-               && !CrossProduct(upperHull[upperHull.size() - 2],
-                                upperHull[upperHull.size() - 1],
-                                pointsSorted[i])) {
-            upperHull.pop_back();
-        }
-        upperHull.push_back(pointsSorted[i]);
-
-        while (lowerHull.size() > 1
-               && !CrossProduct(lowerHull[lowerHull.size() - 2],
-                                lowerHull[lowerHull.size() - 1],
-                                pointsSorted[pointsSorted.size() - i - 1])) {
-            lowerHull.pop_back();
-        }
-        lowerHull.push_back(pointsSorted[pointsSorted.size() - i - 1]);
+    pts.erase(std::unique(pts.begin(), pts.end(), [](auto &a, auto &b){
+        return std::fabs(a.x - b.x) < 1e-12 && std::fabs(a.y - b.y) < 1e-12;
+    }), pts.end());
+    if (pts.size() < 3) {
+        hull = pts;
+        return;
     }
-    upperHull.insert(upperHull.end(), lowerHull.begin(), lowerHull.end());
 
-    hull = upperHull;
-    return;
+
+    std::vector<Point> lower, upper;
+
+    for (auto &p : pts) {
+        while (lower.size() >= 2 && cross(lower[lower.size() - 2], lower.back(), p) < -1e-9) {
+            lower.pop_back();
+        }
+        lower.push_back(p);
+    }
+
+    for (int i = (int)pts.size() - 1; i >= 0; i--) {
+        while (upper.size() >= 2 && cross(upper[upper.size() - 2], upper.back(), pts[i]) < -1e-9) {
+            upper.pop_back();
+        }
+        upper.push_back(pts[i]);
+    }
+
+
+    lower.pop_back();
+    upper.pop_back();
+    hull.clear();
+    hull.reserve(lower.size() + upper.size());
+    hull.insert(hull.end(), lower.begin(), lower.end());
+    hull.insert(hull.end(), upper.begin(), upper.end());
 }
