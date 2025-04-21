@@ -12,8 +12,6 @@ from client.models import LLM4PP_Problem, LLM4PP_Submission
 from client.pareval_client import ParEvalDriver
 from fastcoder.chatapi import MessageHistory, ChatAPI, get_api_key
 from tenacity import retry, stop_after_attempt, wait_exponential
-from sentence_transformers import SentenceTransformer
-import torch
 
 # import torch_npu
 import tqdm
@@ -23,10 +21,17 @@ import subprocess
 import tempfile
 from typing import Tuple
 
-from transformers import AutoTokenizer, AutoModelForMaskedLM
 
-base_prompt = """You are a coding expert that rewriting code. You write C and C++ code. The user will give you code and you will provide a different version of the user's code. You need to make sure that the changed code has the same functionality and parameters and return values as the original code.
-
+base_prompt = """You are a coding expert that rewriting code. 
+        You write C and C++ code. 
+        The user will give you a code and you should provide a different version of the user's code. 
+        You need to make sure that the changed code has the same functionality and parameters and return values as the original code.
+        Here are some possible points for increasing the diversity of your code. And you can use one of these points or a combination of them as a reference:
+        1. Change the loop between for, while, and do while.
+        2. Use different algorithms from better to worse.
+        3. Change recursion to loop.
+        4. Make parameter naming clearer and easier to understand
+        5. Other ways you think you can increase the diversity of your code.
         # Prompt format
 
         The user will provide you a JSON dictionary in the following format:
@@ -38,7 +43,10 @@ base_prompt = """You are a coding expert that rewriting code. You write C and C+
         ```
 
         **IMPORTANT:**
-        -You need to give the code in this format at the end of your response:
+        -Your answer should use the following response format:
+        1. Analyzing of source code.
+        2. Analysis How do you think you can increase code diversity and keep features and interfaces consistent with source code
+        3. Give your code at the end in the following format
         ```cpp
         <your optimized code here>
         ```
@@ -147,7 +155,7 @@ def main():
 
         for generate_idx in range(generate_times):
             print(f"Generate {generate_idx} times")
-            driver = ParEvalDriver("ParEval/prompts/code_opt_48.json")
+            driver = ParEvalDriver("ParEval/prompts/code_opt.json")
             problem_optimized_code = {}
             count = 0
             for problem in driver:
@@ -169,12 +177,15 @@ def main():
                     chatAPI, model_path, messages, json_format=False
                 )
                 # optimized_code = re.sub(r"```cpp|```", "", optimized_code).strip()
-                print(optimized_code)
+                # print("=========================")
+                # print(optimized_code)
 
                 optimized_code = re.findall(r"```cpp([\s\S]*?)```", optimized_code)[
                     -1
                 ].strip()
-
+                # print("=========================")
+                # print(optimized_code)
+                # print("=========================")
                 problem_id = problem.problem_id
                 # save the optimized code
                 problem_optimized_code[problem_id] = optimized_code
