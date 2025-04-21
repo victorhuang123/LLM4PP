@@ -55,6 +55,7 @@ def get_args():
     parser.add_argument("--log-build-errors", action="store_true", help="On build error, display the stderr of the build process.")
     parser.add_argument("--log-runs", action="store_true", help="Display the stderr and stdout of runs.")
     parser.add_argument('--code_opt', required=True, help='whether or not this is code optimization')
+    parser.add_argument("--given-baseline", action="store_true", help="Use the given baseline instead of the default baseline.")
     return parser.parse_args()
 
 def get_driver(prompt: dict, scratch_dir: Optional[os.PathLike], launch_configs: dict, problem_sizes: dict, dry: bool, code_opt: bool, **kwargs) -> DriverWrapper:
@@ -149,7 +150,6 @@ def main():
             run_timeout=args.run_timeout,
             code_opt = args.code_opt
         )
-        print(prompt)
         driver.test_all_outputs_in_prompt(prompt)
 
         # go ahead and write out outputs now

@@ -224,7 +224,7 @@ class CppDriverWrapper(DriverWrapper):
         )
 
     def test_single_output(
-        self, prompt: str, output: str, test_driver_file: PathLike, problem_size: str
+        self, prompt: str, output: str, test_driver_file: PathLike, problem_size: str, baseline: str = ""
     ) -> GeneratedTextResult:
         """Test a single generated output."""
         code_opt = True
@@ -257,12 +257,19 @@ class CppDriverWrapper(DriverWrapper):
             )
             cc_path = os.path.join(os.path.dirname(test_driver_file), "cpu.cc")
             # copy the baseline file to the temp dir
-            with open(baseline_path, "r") as f:
-                baseline_content = f.read()
-            with open(os.path.join(tmpdir, "baseline.hpp"), "w") as f:
-                self.write_source(
-                    baseline_content, os.path.join(tmpdir, "baseline.hpp"), "baseline"
-                )
+            if baseline != "":
+                baseline_content = baseline
+                with open(os.path.join(tmpdir, "baseline.hpp"), "w") as f:
+                    self.write_source(
+                        baseline_content, os.path.join(tmpdir, "baseline.hpp"), "baseline"
+                    )
+            else :
+                with open(baseline_path, "r") as f:
+                    baseline_content = f.read()
+                with open(os.path.join(tmpdir, "baseline.hpp"), "w") as f:
+                    self.write_source(
+                        baseline_content, os.path.join(tmpdir, "baseline.hpp"), "baseline"
+                    )
             # copy the cpu.cc file to the temp dir
             with open(cc_path, "r") as f:
                 cc_content = f.read()

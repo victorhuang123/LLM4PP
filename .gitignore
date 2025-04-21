@@ -3,6 +3,7 @@
 **/logs/
 **/tmp/
 *.pyc
+*.o
 
 problem1/datas/
 problem1/logs/

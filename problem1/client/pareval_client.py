@@ -7,7 +7,7 @@ import tempfile
 from client.driver import LLM4PP_Driver, ProblemIterator, ProblemLoader, SubmissionRunner
 from client.models import BenchmarkDescription, LLM4PP_Problem, LLM4PP_Submission, LLM4PP_SubmissionResponse
 
-def create_generation_dict(problem_category: str, problem_unique_id: str, optimized_code: str, prompt: str = ""):
+def create_generation_dict(problem_category: str, problem_unique_id: str, optimized_code: str, prompt: str = "", baseline: str = ""):
     d = {}
     d["outputs"] = []
     d["outputs"].append(optimized_code)
@@ -17,13 +17,17 @@ def create_generation_dict(problem_category: str, problem_unique_id: str, optimi
     d["parallelism_model"] = "omp"
     d["language"] = "cpp"
     d["prompt"] = prompt
-
+    d["baseline"] = []
+    d["baseline"].append(baseline)
     return [d]
 
-def run_driver(gen_file: str, problem_sizes_file: str = "problem-sizes.json", run_timeout: int = 300, launch_configs: str = "launch-configs-speedcode.json") -> str:
+def run_driver(gen_file: str, problem_sizes_file: str = "problem-sizes.json", run_timeout: int = 300, launch_configs: str = "launch-configs-speedcode.json", given_baseline: bool = False) -> str:
     # delete set to False as need this file in another function
     with tempfile.NamedTemporaryFile(suffix=".json") as output_f:
-        args = f"python run-all.py {gen_file} -o {output_f.name} --yes-to-all --problem-sizes {problem_sizes_file} --run-timeout {run_timeout} --launch-configs {launch_configs} --code_opt True"
+        if given_baseline:
+            args = f"python run-all.py {gen_file} -o {output_f.name} --yes-to-all --problem-sizes {problem_sizes_file} --run-timeout {run_timeout} --launch-configs {launch_configs} --code_opt True --given-baseline"
+        else:
+            args = f"python run-all.py {gen_file} -o {output_f.name} --yes-to-all --problem-sizes {problem_sizes_file} --run-timeout {run_timeout} --launch-configs {launch_configs} --code_opt True"
 
         subprocess_args = shlex.split(args)
         proc = subprocess.run(subprocess_args, cwd="ParEval/drivers", capture_output=True, text=True)
@@ -37,13 +41,12 @@ def run_driver(gen_file: str, problem_sizes_file: str = "problem-sizes.json", ru
 
         return driver_info_dict, output, error
 
-def pareval_submit(problem_category: str, problem_unique_id: str, optimized_code: str):
-    gen_dict = create_generation_dict(problem_category, problem_unique_id, optimized_code)
+def pareval_submit(problem_category: str, problem_unique_id: str, optimized_code: str, baseline_code: str = ""):
+    gen_dict = create_generation_dict(problem_category, problem_unique_id, optimized_code, baseline=baseline_code)
 
     with tempfile.NamedTemporaryFile(suffix=".json") as gen_f:
         with open(gen_f.name, "w") as f:
             json.dump(gen_dict, f, indent=4)
-
         driver_info_dict, driver_stdout, driver_stderr = run_driver(gen_f.name)
 
         output_dict = {}
@@ -92,7 +95,10 @@ class ParEvalSubmissionRunner(SubmissionRunner):
     def submit(self, submission : LLM4PP_Submission):
         # generate fake results.
         problem = submission.problem
-        result = pareval_submit(problem.category, problem.problem_id, submission.submitted_code)
+        if submission.baseline_code != "":
+            result = pareval_submit(problem.category, problem.problem_id, submission.submitted_code, submission.baseline_code)
+        else:
+            result = pareval_submit(problem.category, problem.problem_id, submission.submitted_code)
         return LLM4PP_SubmissionResponse(submission=submission,\
                                          compiled=result["did_build"],\
                                          correct=result["is_valid"],\

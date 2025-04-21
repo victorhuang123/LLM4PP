@@ -39,6 +39,7 @@ class LLM4PP_Problem(BaseModel):#
 class LLM4PP_Submission(BaseModel):#
     problem : LLM4PP_Problem
     submitted_code : str
+    baseline_code : str = ""
 
 class LLM4PP_SubmissionResponse(BaseModel):
     submission : LLM4PP_Submission

@@ -215,7 +215,7 @@ class DriverWrapper(ABC):
         pass
 
     @abstractmethod
-    def test_single_output(self, prompt: str, output: str, test_driver_file: PathLike) -> GeneratedTextResult:
+    def test_single_output(self, prompt: str, output: str, test_driver_file: PathLike, baseline: str = "") -> GeneratedTextResult:
         """ Run a single generated output. """
         pass
 
