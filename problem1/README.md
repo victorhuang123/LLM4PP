@@ -21,3 +21,13 @@ bash run.sh
 ```
 bash eval.sh
 ```
+
+## **Test ParEval**
+Compiling the required driver.
+```
+cd ParEval/drivers/cpp/ && make && cd ../../..
+```
+Testing using pytest.
+```
+pytest -v
+```
