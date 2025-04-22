@@ -5,3 +5,4 @@ vllm
 tenacity
 sentence_transformers
 faiss-cpu
+pytest
