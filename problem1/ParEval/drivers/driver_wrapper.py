@@ -175,19 +175,11 @@ class DriverWrapper(ABC):
         display_runs: bool = False,
         early_exit_runs: bool = False,
         dry: bool = False,
-        code_opt: bool = True
     ):
-        # TODO: Hack, force parallelism model to be omp when doing code_opt.
-        # For code opt, model can output either serial or parallel code.
-        self.code_opt = code_opt
-        if self.code_opt:
-            self.parallelism_model = "omp"
-        else:
-            self.parallelism_model = parallelism_model
-
-        self.validator = VALIDATORS[self.parallelism_model]
+        self.parallelism_model = parallelism_model
+        self.validator = VALIDATORS[parallelism_model]
         self.scratch_dir = scratch_dir
-        self.launch_configs = launch_configs[self.parallelism_model]
+        self.launch_configs = launch_configs[parallelism_model]
         self.problem_sizes = problem_sizes
         self.build_timeout = build_timeout
         self.run_timeout = run_timeout
@@ -238,7 +230,7 @@ class DriverWrapper(ABC):
             
             if prompt["baseline"][0] != "":
                 results = self.test_single_output(prompt["prompt"], generated_output, test_driver_file, problem_size, baseline=prompt["baseline"][0])
-            else:    
+            else:
                 results = self.test_single_output(prompt["prompt"], generated_output, test_driver_file, problem_size)
 
             outputs.append({

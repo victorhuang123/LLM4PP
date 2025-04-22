@@ -54,15 +54,14 @@ def get_args():
         type=str.upper, help="logging level")
     parser.add_argument("--log-build-errors", action="store_true", help="On build error, display the stderr of the build process.")
     parser.add_argument("--log-runs", action="store_true", help="Display the stderr and stdout of runs.")
-    parser.add_argument('--code_opt', required=True, help='whether or not this is code optimization')
     parser.add_argument("--given-baseline", action="store_true", help="Use the given baseline instead of the default baseline.")
     return parser.parse_args()
 
-def get_driver(prompt: dict, scratch_dir: Optional[os.PathLike], launch_configs: dict, problem_sizes: dict, dry: bool, code_opt: bool, **kwargs) -> DriverWrapper:
+def get_driver(prompt: dict, scratch_dir: Optional[os.PathLike], launch_configs: dict, problem_sizes: dict, dry: bool, **kwargs) -> DriverWrapper:
     """ Get the language drive wrapper for this prompt """
     driver_cls = LANGUAGE_DRIVERS[prompt["language"]]
     return driver_cls(parallelism_model=prompt["parallelism_model"], launch_configs=launch_configs, 
-        problem_sizes=problem_sizes, scratch_dir=scratch_dir, dry=dry, code_opt=code_opt, **kwargs)
+        problem_sizes=problem_sizes, scratch_dir=scratch_dir, dry=dry, **kwargs)
 
 def already_has_results(prompt: dict) -> bool:
     """ Check if a prompt already has results stored in it. """
@@ -147,8 +146,7 @@ def main():
             display_runs=args.log_runs,
             early_exit_runs=args.early_exit_runs,
             build_timeout=args.build_timeout,
-            run_timeout=args.run_timeout,
-            code_opt = args.code_opt
+            run_timeout=args.run_timeout
         )
         driver.test_all_outputs_in_prompt(prompt)
 

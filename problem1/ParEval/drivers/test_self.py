@@ -87,6 +87,8 @@ def get_all_problem_paths(base_dir):
         return []
     problem_paths = []
     for category in os.listdir(benchmarks_dir):
+        if "pie" in category:
+            continue
         category_path = os.path.join(benchmarks_dir, category)
         if os.path.isdir(category_path):
             for problem in os.listdir(category_path):

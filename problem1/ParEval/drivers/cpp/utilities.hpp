@@ -155,7 +155,7 @@ void fillRand(T &x, DType min, DType max) {
         x[i] = val;
     }
 }
-
+#include <iostream>
 // compare two vectors of floating point numbers
 template <typename Vec, typename FType>
 bool fequal(Vec const& a, Vec const& b, FType epsilon = 1e-6) {

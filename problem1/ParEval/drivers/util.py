@@ -35,5 +35,5 @@ def run_command(cmd: str, timeout: Optional[int] = None, dry: bool = False) -> C
     if dry:
         return CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
     else:
-        cmd = shlex.split(cmd)
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        # cmd = shlex.split(cmd)
+        return subprocess.run(["/bin/bash", "-c", cmd], capture_output=True, text=True, timeout=timeout)

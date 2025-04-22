@@ -1,0 +1,92 @@
+[
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n\n#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nint optbaseline(int n, vector<int>& a) {\n    vector<int> g;\n    g.push_back(1);\n    int c = 0;\n    while(true) {\n        g.push_back(g[c] * 3 + 1);\n        if(g[++c] >= n) break;\n    }\n\n    int ret = 0;\n    for(int i = c - 1; i >= 0; i--) {\n        for(int j = g[i]; j < n; j++) {\n            int v = a[j], w = j - g[i];\n            while(w >= 0 && a[w] > v) {\n                a[w + g[i]] = a[w];\n                w -= g[i];\n                ret++;\n            }\n            a[w + g[i]] = v;\n        }\n    }\n\n    return ret;\n}\n\n",
+    "name": "p02262"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n\n#include <vector>\n#include <string>\n#include <algorithm>\n\nusing namespace std;\n\nstring optbaseline(const string& s, int ii) {\n    int n = s.length();\n    vector<string> a;\n    a.reserve(55555);\n\n    for (int i = 1; i <= 5; i++) {\n        for (int k = 0; k + i <= n; k++) {\n            a.push_back(s.substr(k, i));\n        }\n    }\n\n    sort(a.begin(), a.end());\n    auto last = unique(a.begin(), a.end());\n    a.erase(last, a.end());\n\n    return a[ii - 1];\n}\n\n",
+    "name": "p03355"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n\n#include <vector>\n#include <algorithm>\n#define ll long long\n\nll optbaseline(const std::vector<int>& input) {\n    int k = 0;\n    ll ans = 1;\n    for (int x : input) {\n        ++k;\n        if (x < (k << 1) - 1) {\n            ans = (ans * k) % 1000000007;\n            --k;\n        }\n    }\n    while (k != 1) {\n        ans = (ans * k) % 1000000007;\n        --k;\n    }\n    return ans;\n}",
+    "name": "p03791"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n\n#include<bits/stdc++.h>\n\n#define mod 1000000007\n#define MAX 1000005\n\nusing namespace std;\n\nint optbaseline(int n, int k, vector<int>& arr) {\n    vector<int> a(n + 1);\n    for (int i = 1; i <= n; i++) {\n        a[i] = arr[i - 1];\n    }\n    vector<int> dp(k + 1, -1);\n    function<int(int)> solve = [&](int k) {\n        if (dp[k] != -1)\n            return dp[k];\n        if (k == 0)\n            return dp[k] = 0;\n        int ans = 0;\n        for (int i = 1; i <= n; i++) {\n            if (a[i] > k)\n                continue;\n            if (solve(k - a[i]) == 0) {\n                ans = 1;\n                break;\n            }\n        }\n        return dp[k] = ans;\n    };\n    return solve(k);\n}\n\n",
+    "name": "p03170"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n#include <bits/stdc++.h>\nusing namespace std;\n\n#define MAX 100005\n\nint optbaseline(int n, int m, const vector<pair<int, int>>& items) {\n    struct node {\n        int cost, val;\n        bool operator<(const node& a) const {\n            return val == a.val ? cost < a.cost : val > a.val;\n        }\n    } A[MAX];\n\n    int f[MAX];\n\n    // Fixed find function with iterative path compression\n    auto find = [&](int x) {\n        while (f[x] != x) {\n            f[x] = f[f[x]];  // Path compression\n            x = f[x];\n        }\n        return x;\n    };\n\n    int ans = 0;\n\n    for(int i = 1; i <= n; i++) {\n        A[i].cost = items[i-1].first;\n        A[i].val = items[i-1].second;\n    }\n\n    iota(f, f + m + 2, 0);  // More efficient initialization\n    sort(A + 1, A + n + 1);\n\n    for(int i = 1; i <= n; i++) {\n        int c = A[i].cost;\n        if(c > m) continue;\n\n        int root = find(c);\n        if(root > m) continue;\n\n        ans += A[i].val;\n        f[root] = root + 1;  // Union with next position\n    }\n\n    return ans;\n}",
+    "name": "p02948"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n#include <bits/stdc++.h>\nusing namespace std;\n\n/* 算法说明：\n   环形最大值问题解决方案，纯函数实现\n   输入要求：\n   - x 需为有序坐标数组\n   - v 为对应位置的数值\n   典型测试参数：\n   N=5e5, C=1e18, x递增排列，v随机大数\n*/\n\nlong long optbaseline(int N, long long C, vector<long long>& x, vector<long long>& v) {\n    vector<long long> tmp_x(N), tmp_v(N), prefix(N+1);\n    long long result = numeric_limits<long long>::min();\n\n    // 双向处理循环\n    for (int iteration = 0; iteration < 2; ++iteration) {\n        // 复制当前方向数据\n        for (int i = 0; i < N; ++i) {\n            tmp_x[i] = x[i];\n            tmp_v[i] = v[i];\n        }\n\n        // 计算前缀和\n        prefix[0] = 0;\n        for (int i = 0; i < N; ++i) {\n            prefix[i+1] = prefix[i] + tmp_v[i];\n        }\n\n        // 逆向扫描求最大值\n        long long max_reverse = numeric_limits<long long>::min();\n        for (int i = N-1; i >= 0; --i) {\n            // 直接计算两种路径方案\n            const long long current = prefix[i+1] - tmp_x[i];\n            if (current > result) result = current;\n            \n            const long long loop_case = current - tmp_x[i] + max_reverse;\n            if (loop_case > result) result = loop_case;\n\n            // 维护反向路径最大值\n            const long long reverse_value = prefix[N] - prefix[i] + tmp_x[i] - C;\n            if (reverse_value > max_reverse) max_reverse = reverse_value;\n        }\n\n        // 反转坐标处理反方向\n        for (auto& pos : x) pos = C - pos;\n        reverse(x.begin(), x.end());\n        reverse(v.begin(), v.end());\n    }\n\n    return result;\n}",
+    "name": "p03374"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n#include <vector>\n#include <algorithm>\n#include <cstdlib>\n\n// 生成随机输入数据的函数\n\n\n// 核心算法实现\nstd::vector<int> optbaseline(int n, const std::vector<int>& data) {\n    // 创建带索引的数据结构\n    std::vector<std::pair<int, int>> indexed_data;\n    indexed_data.reserve(n);\n    for (int i = 0; i < n; ++i) {\n        indexed_data.emplace_back(data[i], i);\n    }\n\n    // 按数值排序确定中位数分界\n    std::sort(indexed_data.begin(), indexed_data.end(),\n        [](const auto& a, const auto& b) { return a.first < b.first; });\n\n    // 计算两个中位数值\n    const int right_median = indexed_data[n/2].first;\n    const int left_median = indexed_data[(n-1)/2].first;\n\n    // 构建结果数组\n    std::vector<int> result(n);\n    for (int i = 0; i < n; ++i) {\n        // 根据排序位置选择中位数值\n        const int original_index = indexed_data[i].second;\n        result[original_index] = (i < n/2) ? right_median : left_median;\n    }\n\n    return result;\n}",
+    "name": "p03381"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n\n#include<bits/stdc++.h>\nusing namespace std;\n\nint optbaseline(int n, vector<int>& a) {\n    int ans = INT_MAX;\n    for(int i = -100; i <= 100; i++) {\n        int cost = 0;\n        for(int j = 0; j < n; j++) {\n            cost += (i - a[j]) * (i - a[j]);\n        }\n        ans = min(ans, cost);\n    }\n    return ans;\n}\n\n",
+    "name": "p04025"
+  },
+  {
+    "prompt": "",
+    "omp_prompt": "",
+    "prompted": false,
+    "problem_type": "pie",
+    "language": "cpp",
+    "parallelism_model": "serial",
+    "src_code": "#pragma once\n\n#include <vector>\n\n\nlong long optbaseline(int brpkali, const std::vector<long long>& arr) {\n    long long hasil = 1;\n    unsigned long long Data = 1000000000000000000u;\n\n    for (int i = 0; i < brpkali; i++) {\n        if (arr[i] == 0) {\n            return 0;\n        }\n    }\n\n    for (int i = 0; i < brpkali; i++) {\n        if (arr[i] <= (Data / hasil)) {\n            hasil *= arr[i];\n        } else {\n            return -1;\n        }\n    }\n\n    return hasil;\n}",
+    "name": "p02658"
+  }
+]
