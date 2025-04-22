@@ -32,7 +32,7 @@ void generateInput(ll n, vector<ll>& input) {
 }
 
 void reset(Context *ctx) {
-    generateInput(ctx->N, ctx->d, ctx->v,  ctx->t);
+    generateInput(ctx->N, ctx->d);
     BCAST(ctx->d, INT);
     BCAST(ctx->v, INT);
     BCAST(ctx->t, INT);
@@ -49,12 +49,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    vector<int> md = optbaseline(ctx->N, ctx->d);
+    vector<ll> md = optbaseline(ctx->N, ctx->d);
     (void)md;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    vector<int> md = baseline(ctx->N, ctx->d);
+    vector<ll> md = baseline(ctx->N, ctx->d);
     (void)md;
 }
 

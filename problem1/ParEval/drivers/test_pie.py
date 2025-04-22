@@ -41,13 +41,14 @@ def process_pie_problem(problem_id, debug=False):
     """
     处理 pie 相关问题的测试逻辑。
     """
-    source_dir = f"./cpp/benchmarks/pie/{problem_id}_pie"
+    current_dir = os.path.dirname(os.path.abspath(__file__))  # 获取当前文件目录
+    source_dir = os.path.join(current_dir, f"cpp/benchmarks/pie/{problem_id}_pie")
     if not os.path.isdir(source_dir):
         print(f"错误: 指定的目录 {source_dir} 不存在!")
         return False
 
     if debug:
-        temp_folder = "./tmp"
+        temp_folder = os.path.join(current_dir, "./tmp")
         os.makedirs(temp_folder, exist_ok=True)
     else:
         temp_dir = tempfile.TemporaryDirectory()
@@ -87,17 +88,17 @@ def process_pie_problem(problem_id, debug=False):
 
         # 3. 编译
         a_out_path = os.path.join(temp_folder, "a.out")
-        compile_command = f"g++ -std=c++20 -O3 -I./tests -Icpp -Icpp/models  -I{temp_folder} -DDRIVER_PROBLEM_SIZE=\"(1<<9)\" -DUSE_OMP -fopenmp cpp/models/omp-driver.o  {cpu_dest} -o {a_out_path}"
+        compile_command = f"g++ -std=c++20 -O3 -I{os.path.join(current_dir, 'tests')} -I{os.path.join(current_dir, 'cpp')} -I{os.path.join(current_dir, 'cpp/models')} -I{temp_folder} -DDRIVER_PROBLEM_SIZE=\"(1<<9)\" -DUSE_OMP -fopenmp cpp/models/omp-driver.o {cpu_dest} -o {a_out_path}"
         if debug:
             print(f"编译命令: {compile_command}")
-        compile_result = subprocess.run(compile_command, shell=True, capture_output=True, text=True)
+        compile_result = subprocess.run(compile_command, shell=True, capture_output=True, text=True, cwd=current_dir)
         if compile_result.returncode != 0:
             print("编译失败:")
             print(compile_result.stderr)
             return False
 
         # 4. 运行 a.out
-        result = subprocess.run(f"{a_out_path} 8", shell=True, capture_output=True, text=True)
+        result = subprocess.run(f"{a_out_path} 8", shell=True, capture_output=True, text=True, cwd=current_dir)
         if result.returncode != 0:
             print("运行失败:")
             print(result.stderr)
@@ -123,5 +124,8 @@ def process_pie_problem(problem_id, debug=False):
     'p03355', 'p02801', 'p01462', 'p03381', 'p00460', 'p02948', 'p02658', 'p03986', 
     'p00106', 'p02262', 'p02701'
 ])
+# @pytest.mark.parametrize("problem_id", [
+#     'p03504'
+# ])
 def test_process_pie_problem(problem_id):
     assert process_pie_problem(problem_id, debug=False), f"问题 {problem_id} 的验证失败!"

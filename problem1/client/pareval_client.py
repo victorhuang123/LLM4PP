@@ -25,9 +25,9 @@ def run_driver(gen_file: str, problem_sizes_file: str = "problem-sizes.json", ru
     # delete set to False as need this file in another function
     with tempfile.NamedTemporaryFile(suffix=".json") as output_f:
         if given_baseline:
-            args = f"python run-all.py {gen_file} -o {output_f.name} --yes-to-all --problem-sizes {problem_sizes_file} --run-timeout {run_timeout} --launch-configs {launch_configs} --code_opt True --given-baseline"
+            args = f"python run-all.py {gen_file} -o {output_f.name} --yes-to-all --problem-sizes {problem_sizes_file} --run-timeout {run_timeout} --launch-configs {launch_configs} --given-baseline"
         else:
-            args = f"python run-all.py {gen_file} -o {output_f.name} --yes-to-all --problem-sizes {problem_sizes_file} --run-timeout {run_timeout} --launch-configs {launch_configs} --code_opt True"
+            args = f"python run-all.py {gen_file} -o {output_f.name} --yes-to-all --problem-sizes {problem_sizes_file} --run-timeout {run_timeout} --launch-configs {launch_configs}"
 
         subprocess_args = shlex.split(args)
         proc = subprocess.run(subprocess_args, cwd="ParEval/drivers", capture_output=True, text=True)

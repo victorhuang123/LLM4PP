@@ -13,7 +13,8 @@ class ProblemIterator:
         self.problem_list = copy.deepcopy(problem_list)
         # validate
         for i in range(len(self.problem_list)):
-            self.problem_list[i] = self.problem_list[i].parse_obj(self.problem_list[i])
+            # self.problem_list[i] = self.problem_list[i].parse_obj(self.problem_list[i])
+            self.problem_list[i] = self.problem_list[i].model_validate(self.problem_list[i])  # 使用 model_validate 替代 parse_obj
         #self.iterator_index = 0 
 
     def __iter__(self) -> Iterator[LLM4PP_Problem]:
@@ -91,7 +92,8 @@ class LLM4PP_Driver:
         return n
     
     def submit(self, submission : LLM4PP_Submission) -> None:
-        submission = LLM4PP_Submission.parse_obj(submission) # validate
+        # submission = LLM4PP_Submission.parse_obj(submission) # validate
+        submission = LLM4PP_Submission.model_validate(submission) # validate
         response = self.runner.submit(submission)
         self.responses.append(response)
         return response

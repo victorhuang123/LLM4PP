@@ -57,12 +57,12 @@ Context *init() {
 }
 
 void NO_OPTIMIZE compute(Context *ctx) {
-    int md = optbaseline(ctx->N, ctx->d, ctx->v, ctx->t);
+    int md = optbaseline(ctx->N, ctx->C, ctx->d, ctx->v, ctx->t);
     (void)md;
 }
 
 void NO_OPTIMIZE best(Context *ctx) {
-    int md = baseline(ctx->N, ctx->d, ctx->v, ctx->t);
+    int md = baseline(ctx->N, ctx->C, ctx->d, ctx->v, ctx->t);
     (void)md;
 }
 

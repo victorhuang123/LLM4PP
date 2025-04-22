@@ -31,3 +31,8 @@ Testing using pytest.
 ```
 pytest -v
 ```
+If you want to use multi-thread testing.
+```
+pip install pytest-xdist
+pytest -n 4
+```
