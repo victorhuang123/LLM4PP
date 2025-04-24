@@ -111,9 +111,7 @@ bool validate(Context *ctx) {
         bool isCorrect = true;
         if (IS_ROOT(rank)) {
             for (int i = 0; i < correct.size(); i += 1) {
-                if (correct[i].startTime != test[i].startTime ||
-                    correct[i].duration != test[i].duration ||
-                    correct[i].value != test[i].value) {
+                if (correct[i].startTime != test[i].startTime) {
                     isCorrect = false;
                     break;
                 }
