@@ -8,7 +8,7 @@ HAS_HIPCC := $(shell command -v hipcc 2> /dev/null)
 HAS_KOKKOS := $(shell test -d $(Kokkos_PATH)/lib64/ && echo "true")
 
 SERIAL_DRIVERS = $(patsubst %.cc,%.o, $(wildcard */*serial-driver.cc))
-OMP_DRIVERS = $(patsubst %.cc,%.o, $(wildcard */*omp-driver.cc))
+OMP_DRIVERS = $(patsubst %.cc,%.o, $(filter %/omp-driver.cc, $(wildcard */*.cc)))
 MPI_DRIVERS = $(patsubst %.cc,%.o, $(wildcard */*mpi-driver.cc))
 MPI_OMP_DRIVERS = $(patsubst %.cc,%.o, $(wildcard */*mpi-omp-driver.cc))
 CUDA_DRIVERS = $(patsubst %.cu,%.o, $(wildcard */*cuda-driver.cu))
@@ -18,6 +18,8 @@ KOKKOS_DRIVERS = $(patsubst %.cc,%.o, $(wildcard */*kokkos-driver.cc))
 ALL_DRIVERS = $(SERIAL_DRIVERS) $(OMP_DRIVERS) $(MPI_DRIVERS) $(MPI_OMP_DRIVERS) $(CUDA_DRIVERS) $(HIP_DRIVERS) $(KOKKOS_DRIVERS)
 
 all: $(ALL_DRIVERS)
+
+evaluation: $(SERIAL_DRIVERS) $(OMP_DRIVERS)
 
 %.o: %.cc
 	$(CXX) $(CXX_FLAGS) -o $@ -c $<
